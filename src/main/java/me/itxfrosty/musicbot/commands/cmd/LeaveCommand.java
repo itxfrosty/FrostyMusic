@@ -5,7 +5,6 @@ import me.itxfrosty.musicbot.commands.Command;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 public class LeaveCommand extends Command {
 	private final MusicManager musicManager;
@@ -13,8 +12,6 @@ public class LeaveCommand extends Command {
 	public LeaveCommand(final MusicBot musicBot) {
 		super("leave","Leaves the voice channel.","/leave",false);
 		musicManager = musicBot.getMusicManager();
-
-		setCommandData(new CommandData("leave","Leaves the voice channel."));
 	}
 
 	@Override

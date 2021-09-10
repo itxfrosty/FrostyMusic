@@ -1,6 +1,7 @@
 package me.itxfrosty.musicbot;
 
 import lombok.Getter;
+import me.itxfrosty.musicbot.commands.CommandManager;
 import me.itxfrosty.musicbot.commands.cmd.*;
 import me.itxfrosty.musicbot.listeners.CommandListener;
 import me.itxfrosty.musicbot.managers.BotManager;
@@ -20,6 +21,7 @@ public class MusicBot {
 
 	@Getter private final BotManager botManager;
 	@Getter private final MusicManager musicManager;
+	@Getter private final CommandManager commandManager;
 	@Getter private final YoutubeManager youtubeManager;
 
 	@Getter private static MusicBot instance;
@@ -32,33 +34,19 @@ public class MusicBot {
 	 */
 	public MusicBot() throws LoginException, InterruptedException {
 		instance = this;
-		botManager = new BotManager();
+		this.botManager = new BotManager();
 
-		JDABuilder builder = JDABuilder.createDefault("ODI3Mzg0NDg5MzE0NjE1MzM4.YGaP2g.qMRX_wUnVQjHfFOkAxKDl8X41xE");
+		JDABuilder builder = JDABuilder.createDefault("ODYxNDIzOTM4ODE0NzM4NDUy.YOJljw.gJ4QOJ5qsJSYGFNg2dETKNORiqM");
 
 		builder.setStatus(OnlineStatus.ONLINE);
 		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 		builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
 
-		jda = builder.build().awaitReady();
-
-		/*
-		CommandListUpdateAction commands = jda.updateCommands();
-
-		commands.addCommands(
-				new CommandData("play","Play's Song from either link or keywords.").addOption(OptionType.STRING,"input","A search term or link.",true),
-				new CommandData("volume","Set's the Volume of the Audio Player.").addOption(OptionType.STRING,"value","The value to set the volume to.",true),
-				new CommandData("skip","Skip's Song and play's next one in queue."),
-				new CommandData("queue","Display's a queue of songs."),
-				new CommandData("join","Makes the bot join the voice channel."),
-				new CommandData("leave","Leaves the voice channel.")
-		).queue();
-
-		 */
+		this.jda = builder.build().awaitReady();
 
 		musicManager = new MusicManager();
+		commandManager = new CommandManager();
 		youtubeManager = new YoutubeManager(this);
-
 	}
 
 	/**
@@ -78,7 +66,7 @@ public class MusicBot {
 		assert musicBot != null;
 		musicBot.getBotManager().registerEventListener(new CommandListener());
 
-		musicBot.getBotManager().registerCommands(
+		musicBot.getCommandManager().registerCommands(
 				musicBot.getJda(),
 				new PlayCommand(musicBot),
 				new SkipCommand(musicBot),
@@ -86,7 +74,12 @@ public class MusicBot {
 				new LeaveCommand(musicBot),
 				new VolumeCommand(musicBot),
 				new JoinCommand(musicBot),
-				new ShuffleCommand(musicBot));
+				new ShuffleCommand(musicBot),
+				new PauseCommand(musicBot),
+				new NPCommand(musicBot),
+				new ResumeCommand(musicBot),
+				new SeekCommand(musicBot),
+				new SkipToCommand(musicBot));
 
 		musicBot.getBotManager().addListeners(musicBot.getJda());
 	}

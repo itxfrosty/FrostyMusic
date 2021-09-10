@@ -5,17 +5,14 @@ import me.itxfrosty.musicbot.commands.Command;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
 
 public class SkipCommand extends Command {
 	private final MusicManager musicManager;
 
 	public SkipCommand(@NotNull MusicBot bot) {
-		super("skip","Skip's Song.","/skip", false);
+		super("skip","Skip's Song and play's next one in queue.","/skip", false);
 		this.musicManager = bot.getMusicManager();
-
-		setCommandData(new CommandData("skip","Skip's Song and play's next one in queue."));
 	}
 
 	@Override

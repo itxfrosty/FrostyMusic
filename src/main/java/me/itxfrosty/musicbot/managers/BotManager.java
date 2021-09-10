@@ -1,11 +1,7 @@
 package me.itxfrosty.musicbot.managers;
 
-import me.itxfrosty.musicbot.commands.Command;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -14,7 +10,6 @@ import java.util.List;
 
 public class BotManager {
 
-	private final List<Command> commandList = new ArrayList<>();
 	private final List<ListenerAdapter> eventListenersList = new ArrayList<>();
 
 	/**
@@ -44,27 +39,5 @@ public class BotManager {
 		for (ListenerAdapter listener : eventListenersList) {
 			jda.addEventListener(listener);
 		}
-	}
-
-	/**
-	 * Register's all command's Listed.
-	 *
-	 * @param commands Commands.
-	 */
-	public void registerCommands(JDA jda, Command... commands) {
-		this.commandList.addAll(Arrays.asList(commands));
-
-		CommandListUpdateAction action = jda.updateCommands();
-		commandList.forEach((command -> action.addCommands(command.getCommandData()).queue()));
-
-	}
-
-	/**
-	 * Get's all Commands.
-	 *
-	 * @return List of Commands.
-	 */
-	public List<Command> getCommands() {
-		return new ArrayList<>(commandList);
 	}
 }

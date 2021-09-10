@@ -1,8 +1,6 @@
 package me.itxfrosty.musicbot.commands;
 
 import lombok.Getter;
-import lombok.Setter;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
@@ -15,13 +13,15 @@ public abstract class Command {
 	@Getter public final String usage;
 	@Getter public final boolean moderatorOnly;
 
-	@Getter @Setter public CommandData commandData;
+	@Getter public List<OptionData> optionData;
 
 	public Command(String name, String description, String usage, boolean moderatorOnly) {
 		this.name = name;
 		this.description = description;
 		this.usage = usage;
 		this.moderatorOnly = moderatorOnly;
+
+		this.optionData = new ArrayList<>();
 	}
 
 	public abstract void execute(CommandEvent event);

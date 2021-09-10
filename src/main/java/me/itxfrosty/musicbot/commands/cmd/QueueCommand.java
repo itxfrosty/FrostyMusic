@@ -16,8 +16,6 @@ public class QueueCommand extends Command {
 	public QueueCommand(final MusicBot musicBot) {
 		super("queue","Display's a queue of songs.","/queue",false);
 		this.musicManager = musicBot.getMusicManager();
-
-		setCommandData(new CommandData("queue","Display's a queue of songs."));
 	}
 
 	@Override

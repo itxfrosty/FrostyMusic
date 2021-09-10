@@ -21,7 +21,7 @@ public class CommandListener extends ListenerAdapter {
 
 		if (user.isBot()) return;
 
-		for (Command command : MusicBot.getInstance().getBotManager().getCommands()) {
+		for (Command command : MusicBot.getInstance().getCommandManager().getCommands()) {
 			if (event.getName().equals(command.name)) {
 				if (command.isModeratorOnly()) {
 					assert member != null;

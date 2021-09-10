@@ -4,14 +4,15 @@ import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.commands.Command;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
+import me.itxfrosty.musicbot.managers.audio.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class ShuffleCommand extends Command {
+public class ResumeCommand extends Command {
 	private final MusicManager musicManager;
 
-	public ShuffleCommand(final MusicBot musicBot) {
-		super("shuffle","Shuffles the queue", "/shuffle",false);
-		this.musicManager = musicBot.getMusicManager();
+	public ResumeCommand(final MusicBot musicBot) {
+		super("resume", "Resumes the player.", "/resume",false);
+		musicManager = musicBot.getMusicManager();
 	}
 
 	@Override
@@ -20,7 +21,9 @@ public class ShuffleCommand extends Command {
 			event.reply(new EmbedBuilder().setDescription("There are no songs playing.").build()).queue();
 			return;
 		}
-		musicManager.getMusicGuildManager().get(event.getGuild().getIdLong()).getTrackScheduler().shuffle();
-		event.reply(new EmbedBuilder().setDescription("🔀 Shuffled Queue!").build()).queue();
+
+		TrackScheduler scheduler = musicManager.getMusicGuildManager().get(event.getGuild().getIdLong()).getTrackScheduler();
+		scheduler.setPaused(false);
+		event.reply(new EmbedBuilder().setDescription(":arrow_forward: Unpaused the Player!").build()).queue();
 	}
 }

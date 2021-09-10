@@ -6,6 +6,7 @@ import me.itxfrosty.musicbot.commands.CommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
 import java.net.MalformedURLException;
@@ -16,10 +17,10 @@ public class PlayCommand extends Command {
 	private final MusicBot bot;
 
 	public PlayCommand(final MusicBot bot) {
-		super("play", "Play's Song.", "/play",false);
+		super("play", "Play's Song from either link or keywords.", "/play",false);
 		this.bot = bot;
 
-		setCommandData(new CommandData("play","Play's Song from either link or keywords.").addOption(OptionType.STRING,"input","A search term or link.", true));
+		getOptionData().add(new OptionData(OptionType.STRING,"input","A search term or link.", true));
 	}
 
 	@Override

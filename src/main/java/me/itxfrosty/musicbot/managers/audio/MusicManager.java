@@ -42,11 +42,11 @@ public class MusicManager {
 		AudioManager audio = guild.getAudioManager();
 
 		if (audio.getSendingHandler() == null) {
-			musicGuildManager.putIfAbsent(guild.getIdLong(), new MusicSendHandler(this, playerManager.createPlayer(), guild));
+			this.musicGuildManager.putIfAbsent(guild.getIdLong(), new MusicSendHandler(this, playerManager.createPlayer(), guild));
 			audio.setSendingHandler(musicGuildManager.get(guild.getIdLong()));
 		}
 
-		musicGuildManager.get(guild.getIdLong()).getTrackScheduler().setLogChannel(messageChannel);
+		this.musicGuildManager.get(guild.getIdLong()).getTrackScheduler().setLogChannel(messageChannel);
 		audio.openAudioConnection(voiceChannel);
 	}
 
@@ -57,7 +57,7 @@ public class MusicManager {
 	 */
 	public void leaveVoiceChannel(Guild guild) {
 		guild.getAudioManager().closeAudioConnection();
-		musicGuildManager.get(guild.getIdLong()).getTrackScheduler().clearQueue();
+		this.musicGuildManager.get(guild.getIdLong()).getTrackScheduler().clearQueue();
 	}
 
 	/**

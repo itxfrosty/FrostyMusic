@@ -6,16 +6,16 @@ import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class VolumeCommand extends Command {
 	private final MusicManager musicManager;
 
 	public VolumeCommand(final MusicBot bot) {
-		super("volume", "Change volume of music", "/volume <volume>", false);
+		super("volume", "Set's the Volume of the Audio Player.", "/volume <volume>", false);
 		this.musicManager = bot.getMusicManager();
 
-		setCommandData(new CommandData("volume","Set's the Volume of the Audio Player.").addOption(OptionType.STRING,"value","The value to set the volume to.", true));
+		getOptionData().add(new OptionData(OptionType.STRING,"value","The value to set the volume to.", true));
 	}
 
 	@Override
