@@ -5,7 +5,6 @@ import me.itxfrosty.musicbot.commands.Command;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;

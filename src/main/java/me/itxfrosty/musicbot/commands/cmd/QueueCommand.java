@@ -6,7 +6,6 @@ import me.itxfrosty.musicbot.commands.Command;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import java.util.List;
 
