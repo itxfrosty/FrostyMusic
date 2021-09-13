@@ -136,14 +136,14 @@ public class PlayCommand extends SlashCommand {
 								id = temp.split("\\?")[0];
 							}
 
+							event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading playlist `" + bot.getSpotifyManager().getPlayListName(id) + "`").build()).queue();
+
 							List<String> playlist = bot.getSpotifyManager().getPlaylist(id);
 							for (String link : playlist) {
 								searchForSong(link,false, event);
 							}
 
-							event.reply(new EmbedBuilder().setDescription("Loading playlist `").build());
-
-						} catch (IOException e) {
+						} catch (IOException | ParseException | SpotifyWebApiException e) {
 							e.printStackTrace();
 						}
 

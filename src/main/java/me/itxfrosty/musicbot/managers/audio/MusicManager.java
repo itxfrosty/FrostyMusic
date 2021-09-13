@@ -87,7 +87,10 @@ public class MusicManager {
 					}
 					event.reply(embed.build()).queue();
 				} else {
-					event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
+					if (message) {
+						event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
+					}
+
 				}
 
 				musicGuildManager.get(guild.getIdLong()).getTrackScheduler().queueSong(audioTrack);

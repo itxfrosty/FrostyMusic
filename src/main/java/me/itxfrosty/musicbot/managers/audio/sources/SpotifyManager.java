@@ -108,4 +108,9 @@ public class SpotifyManager {
 		}
 		return finalOutput;
 	}
+
+	public String getPlayListName(String id) throws IOException, ParseException, SpotifyWebApiException {
+		return spotifyApi.getPlaylist(id).build().execute().getName();
+	}
+
 }
