@@ -8,22 +8,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommandManager {
+public class SlashCommandManager {
 
-	private final List<Command> commandList = new ArrayList<>();
+	private final List<SlashCommand> commandList = new ArrayList<>();
 
 	/**
 	 * Register's all command's Listed.
 	 *
 	 * @param commands Commands.
 	 */
-	public void registerCommands(JDA jda, Command... commands) {
+	public void registerCommands(JDA jda, SlashCommand... commands) {
 		this.commandList.addAll(Arrays.asList(commands));
 
 		final List<CommandData> commandDataList = new ArrayList<>();
 		final CommandListUpdateAction action = jda.updateCommands();
 
-		for (Command command : commands) {
+		for (SlashCommand command : commands) {
 			CommandData commandData = new CommandData(command.getName(), command.getDescription());
 
 			if (!command.getOptionData().isEmpty()) {
@@ -41,7 +41,7 @@ public class CommandManager {
 	 *
 	 * @return List of Commands.
 	 */
-	public List<Command> getCommands() {
+	public List<SlashCommand> getCommands() {
 		return new ArrayList<>(commandList);
 	}
 

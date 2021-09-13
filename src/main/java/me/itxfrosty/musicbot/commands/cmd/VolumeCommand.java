@@ -1,14 +1,14 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-public class VolumeCommand extends Command {
+public class VolumeCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public VolumeCommand(final MusicBot bot) {

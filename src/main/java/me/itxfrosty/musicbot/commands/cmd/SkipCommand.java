@@ -1,13 +1,13 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
-public class SkipCommand extends Command {
+public class SkipCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public SkipCommand(@NotNull MusicBot bot) {

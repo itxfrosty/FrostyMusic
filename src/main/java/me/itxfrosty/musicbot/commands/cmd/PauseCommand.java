@@ -1,13 +1,13 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import me.itxfrosty.musicbot.managers.audio.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class PauseCommand extends Command {
+public class PauseCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public PauseCommand(final MusicBot bot) {

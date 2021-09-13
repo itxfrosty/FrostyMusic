@@ -1,37 +1,47 @@
 package me.itxfrosty.musicbot;
 
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import lombok.Getter;
-import me.itxfrosty.musicbot.commands.CommandManager;
+import me.itxfrosty.musicbot.commands.SlashCommandManager;
 import me.itxfrosty.musicbot.commands.cmd.*;
-import me.itxfrosty.musicbot.listeners.CommandListener;
+import me.itxfrosty.musicbot.commands.SlashCommandListener;
 import me.itxfrosty.musicbot.managers.BotManager;
-import me.itxfrosty.musicbot.managers.YoutubeManager;
+import me.itxfrosty.musicbot.managers.audio.sources.SpotifyManager;
+import me.itxfrosty.musicbot.managers.audio.sources.YoutubeManager;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
+import me.itxfrosty.musicbot.utils.ConsoleMessage;
 import me.itxfrosty.musicbot.utils.FileUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import org.apache.hc.core5.http.ParseException;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MusicBot {
-
-	@Getter private static MusicBot instance;
 
 	@Getter private final JDA jda;
 
 	@Getter private final BotManager botManager;
 	@Getter private final MusicManager musicManager;
-	@Getter private final CommandManager commandManager;
+	@Getter private final SlashCommandManager commandManager;
+
+	@Getter private final SpotifyManager spotifyManager;
 	@Getter private final YoutubeManager youtubeManager;
 
 	@Getter private static final YamlFile yamlFile = new YamlFile("configs/bot.yml");
+
+	@Getter private static MusicBot instance;
 
 	/**
 	 * Public Constructor for MusicBot.
@@ -39,11 +49,11 @@ public class MusicBot {
 	 * @throws LoginException Bad Token.
 	 * @throws InterruptedException Bad Connection.
 	 */
-	public MusicBot() throws LoginException, InterruptedException {
-		instance = this;
+	public MusicBot() throws GeneralSecurityException, InterruptedException, IOException, ParseException, SpotifyWebApiException {
+		ConsoleMessage.log("Starting Bot...");
 
+		instance = this;
 		this.loadBotConfig();
-		this.botManager = new BotManager();
 
 		JDABuilder builder = JDABuilder.createDefault(yamlFile.getString("token"));
 
@@ -53,9 +63,13 @@ public class MusicBot {
 
 		this.jda = builder.build().awaitReady();
 
-		musicManager = new MusicManager();
-		commandManager = new CommandManager();
-		youtubeManager = new YoutubeManager(this);
+		this.botManager = new BotManager();
+		this.musicManager = new MusicManager();
+		this.commandManager = new SlashCommandManager();
+		this.spotifyManager = new SpotifyManager();
+		this.youtubeManager = new YoutubeManager(this);
+
+		ConsoleMessage.log("Bot has fully started.");
 	}
 
 	/**
@@ -68,12 +82,12 @@ public class MusicBot {
 
 		try {
 			musicBot = new MusicBot();
-		} catch (LoginException | InterruptedException e) {
+		} catch (InterruptedException | GeneralSecurityException | IOException | ParseException | SpotifyWebApiException e) {
 			e.printStackTrace();
 		}
 
 		assert musicBot != null;
-		musicBot.getBotManager().registerEventListener(new CommandListener());
+		musicBot.getBotManager().registerEventListener(new SlashCommandListener(musicBot));
 
 		musicBot.getCommandManager().registerCommands(
 				musicBot.getJda(),
@@ -107,7 +121,7 @@ public class MusicBot {
 			exception.printStackTrace();
 		}
 
-		if (yamlFile.getString("token") == null) {
+		if (yamlFile.getString("token") == null || yamlFile.getString("token").equals("")) {
 			System.out.println("Bot token for Discord bot not provided! Proceeding to disable bot!");
 			System.exit(0);
 		}

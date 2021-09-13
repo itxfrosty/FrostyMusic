@@ -165,9 +165,9 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
 		trackQueue.remove(track);
 		if (loop && endReason.mayStartNext) {
-			musicManager.addTrack(track.getInfo().uri, guild, this, false);
+			musicManager.addTrack(track.getInfo().uri, guild, false);
 		} else if (loopQueue && endReason.mayStartNext) {
-			musicManager.addTrack(track.getInfo().uri, guild, this, true);
+			musicManager.addTrack(track.getInfo().uri, guild, true);
 		} else if (endReason.mayStartNext && trackQueue.size() > 0) player.playTrack(trackQueue.get(0));
 	}
 }

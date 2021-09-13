@@ -2,14 +2,14 @@ package me.itxfrosty.musicbot.commands.cmd;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
 
-public class QueueCommand extends Command {
+public class QueueCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public QueueCommand(final MusicBot musicBot) {

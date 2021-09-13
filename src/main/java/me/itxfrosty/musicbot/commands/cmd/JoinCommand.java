@@ -1,14 +1,14 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.Objects;
 
-public class JoinCommand extends Command {
+public class JoinCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public JoinCommand(final MusicBot musicBot) {

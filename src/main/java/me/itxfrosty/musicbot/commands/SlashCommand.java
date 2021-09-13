@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Command {
+public abstract class SlashCommand {
 
 	@Getter public final String name;
 	@Getter public final String description;
@@ -15,7 +15,7 @@ public abstract class Command {
 
 	@Getter public List<OptionData> optionData;
 
-	public Command(String name, String description, String usage, boolean moderatorOnly) {
+	public SlashCommand(String name, String description, String usage, boolean moderatorOnly) {
 		this.name = name;
 		this.description = description;
 		this.usage = usage;

@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -29,6 +30,8 @@ public class MusicManager {
 	public MusicManager() {
 		AudioSourceManagers.registerRemoteSources(playerManager);
 		AudioSourceManagers.registerLocalSource(playerManager);
+
+		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
 	}
 
 	/**
@@ -67,7 +70,7 @@ public class MusicManager {
 	 * @param channel Channel to send message.
 	 * @param guild Guild.
 	 */
-	public void addTrack(User user, String url, MessageChannel channel, Guild guild, CommandEvent event) {
+	public void addTrack(User user, String url, MessageChannel channel, Guild guild, boolean message , CommandEvent event) {
 		playerManager.loadItem(url, new AudioLoadResultHandler() {
 			@Override
 			public void trackLoaded(AudioTrack audioTrack) {
@@ -79,7 +82,9 @@ public class MusicManager {
 							.setFooter("Added by " + user.getAsTag(), user.getEffectiveAvatarUrl())
 							.setThumbnail(MusicUtils.getThumbnail(audioTrack));
 
-					channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
+					if (message) {
+						channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
+					}
 					event.reply(embed.build()).queue();
 				} else {
 					event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
@@ -113,11 +118,12 @@ public class MusicManager {
 	 *
 	 * @param name Name of Song.
 	 * @param guild Guild.
-	 * @param scheduler TrackScheduler
 	 * @param queueSong If song need's to be queued.
 	 */
-	public void addTrack(String name, Guild guild, TrackScheduler scheduler, boolean queueSong) {
+	public void addTrack(String name, Guild guild, boolean queueSong) {
 		playerManager.loadItem(name, new AudioLoadResultHandler() {
+			final TrackScheduler scheduler = getMusicGuildManager().get(guild.getIdLong()).getTrackScheduler();
+
 			@Override
 			public void trackLoaded(AudioTrack audioTrack) {
 				if (queueSong) {

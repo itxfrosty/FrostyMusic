@@ -1,8 +1,6 @@
-package me.itxfrosty.musicbot.listeners;
+package me.itxfrosty.musicbot.commands;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
-import me.itxfrosty.musicbot.commands.CommandEventHandler;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -12,7 +10,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-public class CommandListener extends ListenerAdapter {
+public class SlashCommandListener extends ListenerAdapter {
+	private final MusicBot musicBot;
+
+	public SlashCommandListener(MusicBot musicBot) {
+		this.musicBot = musicBot;
+	}
 
 	@Override
 	public void onSlashCommand(@NotNull SlashCommandEvent event) {
@@ -21,7 +24,7 @@ public class CommandListener extends ListenerAdapter {
 
 		if (user.isBot()) return;
 
-		for (Command command : MusicBot.getInstance().getCommandManager().getCommands()) {
+		for (SlashCommand command : musicBot.getCommandManager().getCommands()) {
 			if (event.getName().equals(command.name)) {
 				if (command.isModeratorOnly()) {
 					assert member != null;
@@ -37,6 +40,19 @@ public class CommandListener extends ListenerAdapter {
 				command.execute(new CommandEventHandler(event));
 				break;
 			}
+		}
+	}
+
+	/**
+	 * Record for handling the {@link CommandEvent CommandEvent}.
+	 *
+	 * @author itxfrosty
+	 */
+	public record CommandEventHandler(SlashCommandEvent event) implements CommandEvent {
+
+		@Override
+		public SlashCommandEvent getEvent() {
+			return event;
 		}
 	}
 }

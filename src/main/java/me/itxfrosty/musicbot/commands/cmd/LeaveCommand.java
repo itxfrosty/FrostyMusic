@@ -1,12 +1,12 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class LeaveCommand extends Command {
+public class LeaveCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public LeaveCommand(final MusicBot musicBot) {

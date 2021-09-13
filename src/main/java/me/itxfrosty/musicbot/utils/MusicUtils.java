@@ -31,4 +31,13 @@ public class MusicUtils {
 		return String.format("https://img.youtube.com/vi/%s/0.jpg", audioTrack.getInfo().uri.substring(32));
 	}
 
+	/**
+	 * Check's if string is a link.
+	 *
+	 * @param link String of Link.
+	 * @return if Link.
+	 */
+	public static boolean isValidLink(String link) {
+		return link.matches("(.*)open.spotify.com(.*)|spotify(.*)|(.*)youtube.com(.*)|(.*)youtu.be(.*)");
+	}
 }

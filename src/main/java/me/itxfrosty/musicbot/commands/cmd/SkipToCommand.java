@@ -1,7 +1,7 @@
 package me.itxfrosty.musicbot.commands.cmd;
 
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.commands.Command;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.managers.audio.MusicManager;
 import me.itxfrosty.musicbot.managers.audio.TrackScheduler;
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SkipToCommand extends Command {
+public class SkipToCommand extends SlashCommand {
 	private final MusicManager musicManager;
 
 	public SkipToCommand(final MusicBot bot) {
