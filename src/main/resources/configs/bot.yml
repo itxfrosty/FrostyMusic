@@ -4,3 +4,10 @@
 
 # Discord Bot Token.
 token: ""
+
+# Youtube API Token.
+youtubeToken: ""
+
+# Spotify Application Info.
+clientID: ""
+clientSecret: ""

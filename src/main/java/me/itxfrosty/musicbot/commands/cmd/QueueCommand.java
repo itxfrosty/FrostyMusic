@@ -4,7 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
-import me.itxfrosty.musicbot.managers.audio.MusicManager;
+import me.itxfrosty.musicbot.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
@@ -21,13 +21,13 @@ public class QueueCommand extends SlashCommand {
 	public void execute(CommandEvent event) {
 		EmbedBuilder embed = new EmbedBuilder();
 		if (musicManager.getMusicGuildManager().get(event.getGuild().getIdLong()) == null) {
-			embed.setDescription("There's no song in the queue for me to play. **!play** a song first.");
+			embed.setDescription("There's no song in the queue for me to play. **/play** a song first.");
 			event.reply(embed.build()).queue();
 			return;
 		}
 		List<AudioTrack> tracks = musicManager.getMusicGuildManager().get(event.getGuild().getIdLong()).getTrackScheduler().getQueueCopy();
 		if (tracks.size() == 0 || tracks.get(0) == null) {
-			embed.setDescription("There's no song in the queue for me to play. **!play** a song first.");
+			embed.setDescription("There's no song in the queue for me to play. **/play** a song first.");
 			event.reply(embed.build()).queue();
 			return;
 		}

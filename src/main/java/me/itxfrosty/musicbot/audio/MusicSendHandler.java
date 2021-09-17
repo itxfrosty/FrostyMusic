@@ -1,4 +1,4 @@
-package me.itxfrosty.musicbot.managers.audio;
+package me.itxfrosty.musicbot.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;

@@ -1,4 +1,4 @@
-package me.itxfrosty.musicbot.managers.audio.sources;
+package me.itxfrosty.musicbot.audio.sources;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -7,6 +7,7 @@ import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import lombok.Getter;
+import me.itxfrosty.musicbot.MusicBot;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,14 +21,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class SpotifyManager {
+public class SpotifySource {
 
-	private final String CLIENT_ID = "bb7cf224520641af8f45a18423a5c862";
-	private final String CLIENT_SECRET = "4893352dacd54ae18d7c03674fbb31d7";
+	private final String CLIENT_ID;
+	private final String CLIENT_SECRET;
 
-	@Getter private final SpotifyApi spotifyApi;
+	private final SpotifyApi spotifyApi;
 
-	public SpotifyManager() throws IOException, ParseException, SpotifyWebApiException {
+	public SpotifySource(MusicBot musicBot) throws IOException, ParseException, SpotifyWebApiException {
+		CLIENT_ID = musicBot.getYamlFile().getString("clientID");
+		CLIENT_SECRET = musicBot.getYamlFile().getString("clientSecret");
+
 		this.spotifyApi = new SpotifyApi.Builder()
 				.setClientId(CLIENT_ID)
 				.setClientSecret(CLIENT_SECRET)
@@ -65,12 +69,12 @@ public class SpotifyManager {
 	public String getTrackArtists(String id) throws IOException, SpotifyWebApiException, ParseException {
 		GetTrackRequest getTrackRequest = spotifyApi.getTrack(id).build();
 		final Track track = getTrackRequest.execute();
-		if (Arrays.stream(track.getArtists()).findFirst().isEmpty()) return "";
+		if (Arrays.stream(track.getArtists()).findFirst().isPresent()) return "";
 		return Arrays.stream(track.getArtists()).findFirst().get().getName();
 	}
 
 	/**
-	 * Returns {@link List<String>} of Strings where each entry contains the name and artist of a song in the following format: song+Name+artist1+name+Artist2+name... Example: Heathens+Twenty+One+Pilots
+	 * Returns {@link List <String>} of Strings where each entry contains the name and artist of a song in the following format: song+Name+artist1+name+Artist2+name... Example: Heathens+Twenty+One+Pilots
 	 *
 	 * @param id The playlist id which is included in the playlist link and the Spotify URI.
 	 * @return A {@link List<String>} of Strings.

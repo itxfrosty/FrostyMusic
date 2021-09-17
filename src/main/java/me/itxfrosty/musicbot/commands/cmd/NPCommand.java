@@ -4,7 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
-import me.itxfrosty.musicbot.managers.audio.MusicManager;
+import me.itxfrosty.musicbot.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class NPCommand extends SlashCommand {

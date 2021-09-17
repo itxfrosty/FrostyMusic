@@ -1,4 +1,4 @@
-package me.itxfrosty.musicbot.enums;
+package me.itxfrosty.musicbot.objects.enums;
 
 public enum SpotifyType {
 

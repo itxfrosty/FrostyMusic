@@ -48,7 +48,12 @@ public class SlashCommandListener extends ListenerAdapter {
 	 *
 	 * @author itxfrosty
 	 */
-	public record CommandEventHandler(SlashCommandEvent event) implements CommandEvent {
+	public static class CommandEventHandler implements CommandEvent {
+		public SlashCommandEvent event;
+
+		public CommandEventHandler(SlashCommandEvent event) {
+			this.event = event;
+		}
 
 		@Override
 		public SlashCommandEvent getEvent() {

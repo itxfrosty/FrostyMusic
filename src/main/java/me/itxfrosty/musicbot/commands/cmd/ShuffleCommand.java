@@ -3,7 +3,7 @@ package me.itxfrosty.musicbot.commands.cmd;
 import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.CommandEvent;
-import me.itxfrosty.musicbot.managers.audio.MusicManager;
+import me.itxfrosty.musicbot.audio.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ShuffleCommand extends SlashCommand {

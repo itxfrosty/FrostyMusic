@@ -1,113 +1,80 @@
 package me.itxfrosty.musicbot;
 
+
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import lombok.Getter;
+import me.itxfrosty.musicbot.audio.MusicManager;
+import me.itxfrosty.musicbot.audio.sources.SpotifySource;
+import me.itxfrosty.musicbot.audio.sources.YoutubeSource;
+import me.itxfrosty.musicbot.commands.SlashCommandListener;
 import me.itxfrosty.musicbot.commands.SlashCommandManager;
 import me.itxfrosty.musicbot.commands.cmd.*;
-import me.itxfrosty.musicbot.commands.SlashCommandListener;
-import me.itxfrosty.musicbot.managers.BotManager;
-import me.itxfrosty.musicbot.managers.audio.sources.SpotifyManager;
-import me.itxfrosty.musicbot.managers.audio.sources.YoutubeManager;
-import me.itxfrosty.musicbot.managers.audio.MusicManager;
-import me.itxfrosty.musicbot.utils.ConsoleMessage;
+import me.itxfrosty.musicbot.factories.BotFactory;
 import me.itxfrosty.musicbot.utils.FileUtils;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.hc.core5.http.ParseException;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
-import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MusicBot {
 
-	@Getter private final JDA jda;
+	private BotFactory botFactory;
+	private final MusicManager musicManager;
+	private final YoutubeSource youtubeSource;
+	private final SpotifySource spotifySource;
+	private final SlashCommandManager commandManager;
 
-	@Getter private final BotManager botManager;
-	@Getter private final MusicManager musicManager;
-	@Getter private final SlashCommandManager commandManager;
+	private final YamlFile yamlFile = new YamlFile("configs/bot.yml");
 
-	@Getter private final SpotifyManager spotifyManager;
-	@Getter private final YoutubeManager youtubeManager;
+	public MusicBot() throws LoginException, InterruptedException, IOException, ParseException, SpotifyWebApiException {
+		this.log("Music Bot Loading...");
 
-	@Getter private static final YamlFile yamlFile = new YamlFile("configs/bot.yml");
+		this.loadConfig();
 
-	@Getter private static MusicBot instance;
+		this.youtubeSource = new YoutubeSource(this);
+		this.spotifySource = new SpotifySource(this);
 
-	/**
-	 * Public Constructor for MusicBot.
-	 *
-	 * @throws LoginException Bad Token.
-	 * @throws InterruptedException Bad Connection.
-	 */
-	public MusicBot() throws GeneralSecurityException, InterruptedException, IOException, ParseException, SpotifyWebApiException {
-		ConsoleMessage.log("Starting Bot...");
+		this.musicManager = new MusicManager(this);
+		this.commandManager = new SlashCommandManager(this);
 
-		instance = this;
-		this.loadBotConfig();
+		this.loadBot();
 
-		JDABuilder builder = JDABuilder.createDefault(yamlFile.getString("token"));
-
-		builder.setStatus(OnlineStatus.ONLINE);
-		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
-		builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-
-		this.jda = builder.build().awaitReady();
-
-		this.botManager = new BotManager();
-		this.musicManager = new MusicManager();
-		this.commandManager = new SlashCommandManager();
-		this.spotifyManager = new SpotifyManager();
-		this.youtubeManager = new YoutubeManager(this);
-
-		ConsoleMessage.log("Bot has fully started.");
+		this.log("Music bot has started successfully!");
 	}
 
-	/**
-	 * Initializes bot.
-	 *
-	 * @param args Ignored.
-	 */
-	public static void main(String[] args) {
-		MusicBot musicBot = null;
+	private void loadBot() throws LoginException, InterruptedException {
+		this.botFactory = new BotFactory();
 
-		try {
-			musicBot = new MusicBot();
-		} catch (InterruptedException | GeneralSecurityException | IOException | ParseException | SpotifyWebApiException e) {
-			e.printStackTrace();
-		}
+		this.botFactory.setToken(yamlFile.getString("token"));
 
-		assert musicBot != null;
-		musicBot.getBotManager().registerEventListener(new SlashCommandListener(musicBot));
+		this.botFactory.setOnlineStatus(OnlineStatus.ONLINE);
+		this.botFactory.setMemberCachePolicy(MemberCachePolicy.ALL);
+		this.botFactory.registerIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
+		this.botFactory.registerListener(new SlashCommandListener(this));
 
-		musicBot.getCommandManager().registerCommands(
-				musicBot.getJda(),
-				new PlayCommand(musicBot),
-				new SkipCommand(musicBot),
-				new QueueCommand(musicBot),
-				new LeaveCommand(musicBot),
-				new VolumeCommand(musicBot),
-				new JoinCommand(musicBot),
-				new ShuffleCommand(musicBot),
-				new PauseCommand(musicBot),
-				new NPCommand(musicBot),
-				new ResumeCommand(musicBot),
-				new SeekCommand(musicBot),
-				new SkipToCommand(musicBot));
+		this.botFactory.build();
 
-		musicBot.getBotManager().addListeners(musicBot.getJda());
+		commandManager.registerCommands(
+				new PlayCommand(this),
+				new SkipCommand(this),
+				new QueueCommand(this),
+				new LeaveCommand(this),
+				new VolumeCommand(this),
+				new JoinCommand(this),
+				new ShuffleCommand(this),
+				new PauseCommand(this),
+				new NPCommand(this),
+				new ResumeCommand(this),
+				new SeekCommand(this),
+				new SkipToCommand(this));
 	}
 
-	private void loadBotConfig() {
+	private void loadConfig() {
 		try {
 			if (!yamlFile.exists()) {
 				yamlFile.load(FileUtils.getFileFromResource("configs/bot.yml"));
@@ -125,5 +92,45 @@ public class MusicBot {
 			System.out.println("Bot token for Discord bot not provided! Proceeding to disable bot!");
 			System.exit(0);
 		}
+	}
+
+	public YamlFile getYamlFile() {
+		return yamlFile;
+	}
+
+	/**
+	 * Log an Object with log level INFO
+	 * @param log The object to log
+	 */
+	public void log(Object log) {
+		System.out.println(log);
+	}
+
+	/**
+	 * Log an Object with log level ERROR
+	 * @param log The object to log
+	 */
+	public void logError(Object log) {
+		System.err.println(log);
+	}
+
+	public BotFactory getBotFactory() {
+		return botFactory;
+	}
+
+	public YoutubeSource getYoutubeSource() {
+		return youtubeSource;
+	}
+
+	public SpotifySource getSpotifySource() {
+		return spotifySource;
+	}
+
+	public MusicManager getMusicManager() {
+		return musicManager;
+	}
+
+	public SlashCommandManager getCommandManager() {
+		return commandManager;
 	}
 }

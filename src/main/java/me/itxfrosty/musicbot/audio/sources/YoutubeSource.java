@@ -1,4 +1,4 @@
-package me.itxfrosty.musicbot.managers.audio.sources;
+package me.itxfrosty.musicbot.audio.sources;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -19,21 +19,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class YoutubeManager {
+public class YoutubeSource {
 
-	private final String key = "AIzaSyApe9AxUsnpaCealn2DdWgYmHXUw4Tqjj8";
-	private final YouTube youTube;
+	private final String key;
+	private YouTube youTube;
 	private final YouTube.Search.List search;
 
 	private final List<String> properties = Arrays.asList("id", "snippet");
 	private final List<String> videoProperties = Arrays.asList("video");
 	private final List<String> IDProperties = Arrays.asList("snippet", "localizations", "contentDetails");
 
-	public YoutubeManager(final MusicBot bot) {
+	public YoutubeSource(MusicBot musicBot) {
+		key = musicBot.getYamlFile().getString("youtubeToken");
+
 		try {
 			youTube = new YouTube.Builder(GoogleNetHttpTransport.newTrustedTransport(), new JacksonFactory(),
 					request -> {
-					}).setApplicationName("mb-discord-bot").build();
+					}).setApplicationName("frostymusic").build();
 
 			search = youTube.search().list(properties);
 		} catch (GeneralSecurityException | IOException e) {
@@ -43,6 +45,7 @@ public class YoutubeManager {
 
 	public String search(String keywords) {
 		try {
+
 			SearchListResponse searchResponse = search
 					.setMaxResults(3L)
 					.setKey(key)
@@ -142,5 +145,4 @@ public class YoutubeManager {
 	public Video getFirstVideoById(String videoId) throws IOException {
 		return getVideoById(videoId).getItems().get(0);
 	}
-
 }
