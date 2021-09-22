@@ -1,4 +1,4 @@
-package me.itxfrosty.musicbot.objects.enums;
+package me.itxfrosty.musicbot.objects;
 
 import me.itxfrosty.musicbot.utils.MusicUtils;
 

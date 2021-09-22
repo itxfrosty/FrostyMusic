@@ -1,12 +1,17 @@
 package me.itxfrosty.musicbot.factories;
 
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.sharding.DefaultShardManager;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -19,14 +24,16 @@ import java.util.List;
  */
 public class BotFactory {
 
-	private JDA jda;
-	private final JDABuilder jdaBuilder;
+	private ShardManager shardManager;
+	private final DefaultShardManagerBuilder defaultShardManager;
 
 	private String token;
 	private Activity activity;
 	private OnlineStatus onlineStatus;
 	private MemberCachePolicy memberCachePolicy;
 
+	private final List<CacheFlag> enablecacheFlagList;
+	private final List<CacheFlag> disablecacheFlagList;
 	private final List<GatewayIntent> gatewayIntentList;
 	private final List<ListenerAdapter> eventListenersList;
 
@@ -40,8 +47,10 @@ public class BotFactory {
 
 		this.gatewayIntentList = new ArrayList<>();
 		this.eventListenersList = new ArrayList<>();
+		this.enablecacheFlagList = new ArrayList<>();
+		this.disablecacheFlagList = new ArrayList<>();
 
-		this.jdaBuilder = JDABuilder.createDefault(token);
+		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(token);
 	}
 
 	/**
@@ -50,8 +59,10 @@ public class BotFactory {
 	public BotFactory() {
 		this.gatewayIntentList = new ArrayList<>();
 		this.eventListenersList = new ArrayList<>();
+		this.enablecacheFlagList = new ArrayList<>();
+		this.disablecacheFlagList = new ArrayList<>();
 
-		this.jdaBuilder = JDABuilder.createDefault(null);
+		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(null);
 	}
 
 	/**
@@ -151,30 +162,79 @@ public class BotFactory {
 	}
 
 	/**
+	 * Register's Cache Flag.
+	 *
+	 * @param cacheFlag Cache Flag to register.
+	 * @return this.
+	 */
+	public BotFactory registerCache(CacheFlag cacheFlag) {
+		this.enablecacheFlagList.add(cacheFlag);
+
+		return this;
+	}
+
+	/**
+	 * Register's Cache Flags.
+	 *
+	 * @param cacheFlag Cache Flags to register.
+	 * @return this.
+	 */
+	public BotFactory registerCaches(CacheFlag... cacheFlag) {
+		this.enablecacheFlagList.addAll(Arrays.asList(cacheFlag));
+
+		return this;
+	}
+
+	/**
+	 * Disables Cache Flag.
+	 *
+	 * @param cacheFlag Cache Flag to register.
+	 * @return this.
+	 */
+	public BotFactory disableCache(CacheFlag cacheFlag) {
+		this.enablecacheFlagList.add(cacheFlag);
+
+		return this;
+	}
+
+	/**
+	 * Disables Cache Flags.
+	 *
+	 * @param cacheFlag Cache Flags to register.
+	 * @return this.
+	 */
+	public BotFactory disableCaches(CacheFlag... cacheFlag) {
+		this.enablecacheFlagList.addAll(Arrays.asList(cacheFlag));
+
+		return this;
+	}
+
+
+	/**
 	 * Build's Bot.
 	 *
 	 * @throws LoginException Discord Bot Login Exception.
-	 * @throws InterruptedException Discord Servers Exception.
 	 */
-	public void build() throws LoginException, InterruptedException {
+	public void build() throws LoginException {
 		if (this.token == null ) {
 			throw new LoginException("Bot token is null. Shutting down...");
 		}
 
-		this.jdaBuilder.setToken(token);
+		this.defaultShardManager.setToken(token);
 
-		if (this.activity != null) this.jdaBuilder.setActivity(this.activity);
-		if (this.onlineStatus != null) this.jdaBuilder.setStatus(this.onlineStatus);
-		if (this.memberCachePolicy != null) this.jdaBuilder.setMemberCachePolicy(this.memberCachePolicy);
+		if (this.activity != null) this.defaultShardManager.setActivity(this.activity);
+		if (this.onlineStatus != null) this.defaultShardManager.setStatus(this.onlineStatus);
+		if (this.memberCachePolicy != null) this.defaultShardManager.setMemberCachePolicy(this.memberCachePolicy);
 
-		if (!this.gatewayIntentList.isEmpty()) this.jdaBuilder.enableIntents(this.gatewayIntentList);
-		if (!this.eventListenersList.isEmpty()) this.eventListenersList.forEach(this.jdaBuilder::addEventListeners);
+		if (!this.gatewayIntentList.isEmpty()) this.defaultShardManager.enableIntents(this.gatewayIntentList);
+		if (!this.eventListenersList.isEmpty()) this.eventListenersList.forEach(this.defaultShardManager::addEventListeners);
+		if (!this.enablecacheFlagList.isEmpty()) this.defaultShardManager.enableCache(this.enablecacheFlagList);
+		if (!this.disablecacheFlagList.isEmpty()) this.defaultShardManager.disableCache(this.disablecacheFlagList);
 
-		this.jda = this.jdaBuilder.build().awaitReady();
-	}
+		this.defaultShardManager.setShardsTotal(-1);
+		this.defaultShardManager.setAudioSendFactory(new NativeAudioSendFactory());
 
-	public JDA getJda() {
-		return this.jda;
+		this.shardManager = this.defaultShardManager.build();
 	}
 
 	public String getToken() {
@@ -183,6 +243,10 @@ public class BotFactory {
 
 	public Activity getActivity() {
 		return this.activity;
+	}
+
+	public ShardManager getShardManager() {
+		return this.shardManager;
 	}
 
 	public OnlineStatus getOnlineStatus() {

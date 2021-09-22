@@ -3,15 +3,12 @@ package me.itxfrosty.musicbot.audio;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import lombok.Getter;
-import lombok.Setter;
-import me.itxfrosty.musicbot.utils.MusicUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,20 +16,18 @@ import java.util.List;
 public class TrackScheduler extends AudioEventAdapter {
 
 	private final Guild guild;
-	@Getter private final AudioPlayer audioPlayer;
-	@Getter private final MusicManager musicManager;
+	private final AudioPlayer audioPlayer;
 
 	private boolean loop = false;
 	private boolean loopQueue = false;
 
-	@Getter @Setter private MessageChannel logChannel;
+	private TextChannel logChannel;
 
-	@Getter private final List<AudioTrack> trackQueue = new ArrayList<>();
+	private final List<AudioTrack> trackQueue = new ArrayList<>();
 
-	public TrackScheduler(final MusicManager musicManager, AudioPlayer player, Guild guild) {
-		this.musicManager = musicManager;
-		this.audioPlayer = player;
+	public TrackScheduler(AudioPlayer audioPlayer, Guild guild) {
 		this.guild = guild;
+		this.audioPlayer = audioPlayer;
 	}
 
 	/**
@@ -74,39 +69,6 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	/**
-	 * Toggles loop for singular song.
-	 *
-	 * @param channel Message Channel to send message.
-	 */
-	public void toggleLoop(@Nullable MessageChannel channel) {
-		if (loopQueue && !loop) toggleLoopQueue(channel);
-		if (!loop) {
-			loop = true;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat_one: Loop Enabled!").build()).queue();
-		} else {
-			loop = false;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Disabled!").build()).queue();
-		}
-	}
-
-	/**
-	 * Toggles Loop for queue of song.
-	 *
-	 * @param channel Message Channel to send message.
-	 */
-	public void toggleLoopQueue(@Nullable MessageChannel channel) {
-		if (loop && !loopQueue) toggleLoop(channel);
-		if (!loopQueue) {
-			loopQueue = true;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat: Loop Queue Enabled!").build()).queue();
-		} else {
-			loopQueue = false;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Queue Disabled!").build()).queue();
-		}
-
-	}
-
-	/**
 	 * Check's if Audio is paused.
 	 *
 	 * @return If Paused.
@@ -141,33 +103,63 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	/**
+	 * Toggles loop for singular song.
+	 *
+	 * @param channel Message Channel to send message.
+	 */
+	public void toggleLoop(@Nullable MessageChannel channel) {
+		if (loopQueue && !loop) toggleLoopQueue(channel);
+		if (!loop) {
+			loop = true;
+			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat_one: Loop Enabled!").build()).queue();
+		} else {
+			loop = false;
+			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Disabled!").build()).queue();
+		}
+	}
+
+	/**
+	 * Toggles Loop for queue of song.
+	 *
+	 * @param channel Message Channel to send message.
+	 */
+	public void toggleLoopQueue(@Nullable MessageChannel channel) {
+		if (loop && !loopQueue) toggleLoop(channel);
+		if (!loopQueue) {
+			loopQueue = true;
+			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat: Loop Queue Enabled!").build()).queue();
+		} else {
+			loopQueue = false;
+			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Queue Disabled!").build()).queue();
+		}
+
+	}
+
+	/**
 	 * Gets copy of Current Queue.
 	 *
 	 * @return List of AudioTracks.
 	 */
-	public List<AudioTrack> getQueueCopy() {
+	public List<AudioTrack> getTrackQueue() {
 		return new ArrayList<>(trackQueue);
 	}
 
-	@Override
-	public void onTrackStart(AudioPlayer player, AudioTrack track) {
-		EmbedBuilder builder = new EmbedBuilder()
-				.setTitle("Now Playing")
-				.setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
-				.addField("Song Duration", MusicUtils.getDuration(track), true)
-				.setThumbnail(MusicUtils.getThumbnail(track));
-		builder.addField("Up Next", (trackQueue.size() > 1) ? ("[" + trackQueue.get(1).getInfo().title + "](" + trackQueue.get(1).getInfo().uri + ")") : "Nothing", true);
-
-		logChannel.sendMessageEmbeds(builder.build()).queue();
+	/**
+	 * Sets Log Channel to specified MessageChannel
+	 *
+	 * @param logChannel MessageChannel.
+	 */
+	public void setLogChannel(TextChannel logChannel) {
+		this.logChannel = logChannel;
 	}
 
-	@Override
-	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		trackQueue.remove(track);
-		if (loop && endReason.mayStartNext) {
-			musicManager.addTrack(track.getInfo().uri, guild, false);
-		} else if (loopQueue && endReason.mayStartNext) {
-			musicManager.addTrack(track.getInfo().uri, guild, true);
-		} else if (endReason.mayStartNext && trackQueue.size() > 0) player.playTrack(trackQueue.get(0));
+	/**
+	 * Gets Log Channel.
+	 *
+	 * @return MessageChannel
+	 */
+	public TextChannel getLogChannel() {
+		return logChannel;
 	}
+
 }

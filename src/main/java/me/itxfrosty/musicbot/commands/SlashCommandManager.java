@@ -1,22 +1,19 @@
 package me.itxfrosty.musicbot.commands;
 
-import me.itxfrosty.musicbot.MusicBot;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import me.itxfrosty.musicbot.factories.BotFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SlashCommandManager {
-	public MusicBot musicBot;
+	public BotFactory botFactory;
 
-	public SlashCommandManager(MusicBot musicBot) {
-		this.musicBot = musicBot;
+	public SlashCommandManager(BotFactory botFactory) {
+		this.botFactory = botFactory;
 	}
 
-	private final List<SlashCommand> commandList = new ArrayList<>();
+	public final List<SlashCommand> commandList = new ArrayList<>();
 
 	/**
 	 * Register's all command's Listed.
@@ -25,22 +22,6 @@ public class SlashCommandManager {
 	 */
 	public void registerCommands(SlashCommand... commands) {
 		this.commandList.addAll(Arrays.asList(commands));
-
-		final List<CommandData> commandDataList = new ArrayList<>();
-		final CommandListUpdateAction action = musicBot.getBotFactory().getJda().updateCommands();
-
-		for (SlashCommand command : commands) {
-			CommandData commandData = new CommandData(command.getName(), command.getDescription());
-
-			if (!command.getOptionData().isEmpty()) {
-				command.getOptionData().forEach(optionData -> commandData.addOption(optionData.getType(), optionData.getName(), optionData.getDescription(), optionData.isRequired()));
-			}
-
-			commandDataList.add(commandData);
-		}
-
-
-		action.addCommands(commandDataList).queue();
 	}
 
 	/**

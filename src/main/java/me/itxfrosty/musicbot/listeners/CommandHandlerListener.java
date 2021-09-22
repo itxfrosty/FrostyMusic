@@ -1,6 +1,8 @@
-package me.itxfrosty.musicbot.commands;
+package me.itxfrosty.musicbot.listeners;
 
 import me.itxfrosty.musicbot.MusicBot;
+import me.itxfrosty.musicbot.commands.CommandEvent;
+import me.itxfrosty.musicbot.commands.SlashCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -10,10 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-public class SlashCommandListener extends ListenerAdapter {
+public class CommandHandlerListener extends ListenerAdapter {
 	private final MusicBot musicBot;
 
-	public SlashCommandListener(MusicBot musicBot) {
+	public CommandHandlerListener(MusicBot musicBot) {
 		this.musicBot = musicBot;
 	}
 
@@ -24,7 +26,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
 		if (user.isBot()) return;
 
-		for (SlashCommand command : musicBot.getCommandManager().getCommands()) {
+		for (SlashCommand command : musicBot.getSlashCommandManager().getCommands()) {
 			if (event.getName().equals(command.name)) {
 				if (command.isModeratorOnly()) {
 					assert member != null;
@@ -37,7 +39,9 @@ public class SlashCommandListener extends ListenerAdapter {
 					}
 				}
 
+				//event.deferReply().queue();
 				command.execute(new CommandEventHandler(event));
+
 				break;
 			}
 		}

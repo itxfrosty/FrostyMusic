@@ -8,6 +8,7 @@ import com.wrapper.spotify.requests.authorization.client_credentials.ClientCrede
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import lombok.Getter;
 import me.itxfrosty.musicbot.MusicBot;
+import me.itxfrosty.musicbot.data.Config;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,20 +24,15 @@ import java.util.Scanner;
 
 public class SpotifySource {
 
-	private final String CLIENT_ID;
-	private final String CLIENT_SECRET;
+	private final String CLIENT_ID = Config.SPOTIFY_CLIENT_ID;
+	private final String CLIENT_SECRET = Config.SPOTIFY_CLIENT_SECRET;
 
-	private final SpotifyApi spotifyApi;
+	private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+			.setClientId(CLIENT_ID)
+			.setClientSecret(CLIENT_SECRET)
+			.build();
 
-	public SpotifySource(MusicBot musicBot) throws IOException, ParseException, SpotifyWebApiException {
-		CLIENT_ID = musicBot.getYamlFile().getString("clientID");
-		CLIENT_SECRET = musicBot.getYamlFile().getString("clientSecret");
-
-		this.spotifyApi = new SpotifyApi.Builder()
-				.setClientId(CLIENT_ID)
-				.setClientSecret(CLIENT_SECRET)
-				.build();
-
+	public SpotifySource() throws IOException, ParseException, SpotifyWebApiException {
 		ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials().build();
 		ClientCredentials clientCredentials = clientCredentialsRequest.execute();
 
@@ -96,14 +92,12 @@ public class SpotifySource {
 				JSONObject item = items.getJSONObject(i);
 				JSONObject track = item.getJSONObject("track");
 				String name = track.getString("name");
-//                System.out.println(name);
 				String names = "";
 				JSONArray artists = track.getJSONArray("artists");
 				for (int j = 0; j < artists.length(); j++) {
 					JSONObject object = artists.getJSONObject(j);
 					names = names.concat("+" + object.getString("name"));
 				}
-//                System.out.println(names);
 				String output = name + names;
 				output = output.replace(" ", "+");
 
@@ -113,6 +107,15 @@ public class SpotifySource {
 		return finalOutput;
 	}
 
+	/**
+	 * Get's Name of playlist.
+	 *
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws SpotifyWebApiException
+	 */
 	public String getPlayListName(String id) throws IOException, ParseException, SpotifyWebApiException {
 		return spotifyApi.getPlaylist(id).build().execute().getName();
 	}

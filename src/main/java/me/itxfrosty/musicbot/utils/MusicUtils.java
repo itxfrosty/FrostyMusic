@@ -1,6 +1,10 @@
 package me.itxfrosty.musicbot.utils;
 
+
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MusicUtils {
 
@@ -39,5 +43,15 @@ public class MusicUtils {
 	 */
 	public static boolean isValidLink(String link) {
 		return link.matches("(.*)open.spotify.com(.*)|spotify(.*)|(.*)youtube.com(.*)|(.*)youtu.be(.*)");
+	}
+
+	public static boolean ifURL(String url) {
+		try {
+			new URL(url);
+			return true;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
