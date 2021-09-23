@@ -10,10 +10,15 @@ import me.itxfrosty.musicbot.listeners.ReadyListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
 
 public class MusicBot {
 	private final Logger logger = LoggerFactory.getLogger(MusicBot.class);
@@ -23,7 +28,7 @@ public class MusicBot {
 	private final SlashCommandManager slashCommandManager;
 
 	public MusicBot() throws LoginException, InterruptedException {
-		Thread.currentThread().setName("MusicBot");
+		Thread.currentThread().setName("FrostyMusic");
 		logger.info("Starting FrostyMusic V{}.", Config.VERSION);
 
 		botFactory = new BotFactory()

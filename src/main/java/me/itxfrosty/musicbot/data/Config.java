@@ -4,8 +4,7 @@ import me.itxfrosty.musicbot.MusicBot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class Config {
@@ -31,16 +30,36 @@ public class Config {
 	 */
 	private static Properties loadProperties() {
 		final Properties properties = new Properties();
-		try (final InputStream inputStream = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("bot.properties")) {
+		final File file = new File("bot.properties");
+
+		try {
+			final FileInputStream fileInputStream = new FileInputStream(file);
+
+			properties.load(fileInputStream);
+		} catch (IOException e) {
+			saveProperties(properties, file);
+		}
+
+
+		return properties;
+	}
+
+	private static void saveProperties(Properties properties, File file) {
+		try (final InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("bot.properties")) {
+			properties.load(inputStream);
+
 			if (inputStream == null) {
 				throw new RuntimeException("Configuration file not found. Exiting.");
 			}
-			properties.load(inputStream);
-		} catch (final IOException err) {
+
+			FileOutputStream fr = new FileOutputStream("bot.properties");
+			properties.store(fr, null);
+			fr.close();
+		} catch (IOException err) {
 			logger.error("An error occurred while loading configuration file. Exiting.", err);
 			throw new RuntimeException(err);
 		}
-		return properties;
+
 	}
+
 }
