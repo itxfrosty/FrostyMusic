@@ -6,8 +6,6 @@ import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
-import lombok.Getter;
-import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.data.Config;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
