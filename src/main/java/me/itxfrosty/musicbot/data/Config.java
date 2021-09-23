@@ -21,7 +21,7 @@ public class Config {
 
 	/* Spotify Login */
 	public static final String SPOTIFY_CLIENT_ID = PROPERTIES.getProperty("spotify_client_ID");
-	public static final String SPOTIFY_CLIENT_SECRET = PROPERTIES.getProperty("spotify_client_ID");
+	public static final String SPOTIFY_CLIENT_SECRET = PROPERTIES.getProperty("spotify_client_SECRET");
 
 
 	/**

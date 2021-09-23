@@ -3,6 +3,9 @@ package me.itxfrosty.musicbot.audio;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import me.itxfrosty.musicbot.audio.guild.GuildAudioManager;
+import me.itxfrosty.musicbot.utils.MusicUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -17,6 +20,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final Guild guild;
 	private final AudioPlayer audioPlayer;
+	private final GuildAudioManager guildAudioManager;
 
 	private boolean loop = false;
 	private boolean loopQueue = false;
@@ -25,9 +29,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final List<AudioTrack> trackQueue = new ArrayList<>();
 
-	public TrackScheduler(AudioPlayer audioPlayer, Guild guild) {
+	public TrackScheduler(AudioPlayer audioPlayer, GuildAudioManager guildAudioManager, Guild guild) {
 		this.guild = guild;
 		this.audioPlayer = audioPlayer;
+		this.guildAudioManager = guildAudioManager;
 	}
 
 	/**
@@ -136,12 +141,19 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	/**
+	 * Clear's Queue.
+	 */
+	public void resetQueue() {
+		trackQueue.clear();
+	}
+
+	/**
 	 * Gets copy of Current Queue.
 	 *
 	 * @return List of AudioTracks.
 	 */
 	public List<AudioTrack> getTrackQueue() {
-		return new ArrayList<>(trackQueue);
+		return trackQueue;
 	}
 
 	/**
@@ -162,4 +174,30 @@ public class TrackScheduler extends AudioEventAdapter {
 		return logChannel;
 	}
 
+
+	@Override
+	public void onTrackStart(AudioPlayer player, AudioTrack track) {
+		EmbedBuilder builder = new EmbedBuilder()
+				.setTitle("Now Playing")
+				.setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
+				.addField("Song Duration", MusicUtils.getDuration(track), true)
+				.setThumbnail(MusicUtils.getThumbnail(track));
+		builder.addField("Up Next", (trackQueue.size() > 1) ? ("[" + trackQueue.get(1).getInfo().title + "](" + trackQueue.get(1).getInfo().uri + ")") : "Nothing", true);
+
+		logChannel.sendMessageEmbeds(builder.build()).queue();
+	}
+
+	@Override
+	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+		trackQueue.remove(track);
+		if (loop && endReason.mayStartNext) {
+			guildAudioManager.addTrack(track.getInfo().uri, guild, false);
+		} else if (loopQueue && endReason.mayStartNext) {
+			guildAudioManager.addTrack(track.getInfo().uri, guild, true);
+		} else if (endReason.mayStartNext && trackQueue.size() > 0) player.playTrack(trackQueue.get(0));
+	}
+
+	public AudioPlayer getAudioPlayer() {
+		return audioPlayer;
+	}
 }

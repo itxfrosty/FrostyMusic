@@ -11,10 +11,10 @@ public class GuildMusicManager {
 	private final TrackScheduler trackScheduler;
 	private final AudioSendProvider audioSendProvider;
 
-	public GuildMusicManager(AudioPlayerManager playerManager, Guild guild) {
+	public GuildMusicManager(AudioPlayerManager playerManager, GuildAudioManager guildAudioManager, Guild guild) {
 		this.audioPlayer = playerManager.createPlayer();
 
-		this.trackScheduler = new TrackScheduler(this.audioPlayer, guild);
+		this.trackScheduler = new TrackScheduler(this.audioPlayer, guildAudioManager, guild);
 		this.audioSendProvider = new AudioSendProvider(audioPlayer);
 
 		this.audioPlayer.addListener(this.trackScheduler);

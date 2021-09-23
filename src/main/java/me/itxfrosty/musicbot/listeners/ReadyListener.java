@@ -17,7 +17,6 @@ public class ReadyListener extends ListenerAdapter {
 
 	public ReadyListener(MusicBot musicBot) {
 		this.musicBot = musicBot;
-
 	}
 
 	@Override

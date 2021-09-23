@@ -65,7 +65,7 @@ public class SpotifySource {
 	public String getTrackArtists(String id) throws IOException, SpotifyWebApiException, ParseException {
 		GetTrackRequest getTrackRequest = spotifyApi.getTrack(id).build();
 		final Track track = getTrackRequest.execute();
-		if (Arrays.stream(track.getArtists()).findFirst().isPresent()) return "";
+
 		return Arrays.stream(track.getArtists()).findFirst().get().getName();
 	}
 
@@ -110,14 +110,36 @@ public class SpotifySource {
 	/**
 	 * Get's Name of playlist.
 	 *
-	 * @param id
-	 * @return
-	 * @throws IOException
-	 * @throws ParseException
-	 * @throws SpotifyWebApiException
+	 * @param id ID of playlist
+	 * @return Playlist name.
+	 * @throws IOException If an I/O error occurs while creating the input stream.
+	 * @throws ParseException String parsing error.
+	 * @throws SpotifyWebApiException The Web API returned an error further specified in this exception's root cause.
 	 */
 	public String getPlayListName(String id) throws IOException, ParseException, SpotifyWebApiException {
 		return spotifyApi.getPlaylist(id).build().execute().getName();
+	}
+
+
+	/**
+	 * Get's Song from URL and translate it to a name and an artisit.
+	 *
+	 * @param url URL to get track.
+	 * @return Song to search
+	 * @throws IOException If an I/O error occurs while creating the input stream.
+	 * @throws ParseException String parsing error.
+	 * @throws SpotifyWebApiException The Web API returned an error further specified in this exception's root cause.
+	 */
+	public String getTrackNameAndArtist(String url) throws IOException, ParseException, SpotifyWebApiException {
+		if (url.contains("open.spotify.com/track/")) {
+			url = url.replace("https://", "");
+			url = url.split("/")[2];
+			url = url.split("\\?")[0];
+		} else if (url.startsWith("spotify:track:")) {
+			url = url.split(":")[2];
+		}
+
+		return getTrackName(url) + " " + getTrackArtists(url);
 	}
 
 }

@@ -3,6 +3,7 @@ package me.itxfrosty.musicbot.commands;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 
 import javax.annotation.Nonnull;
@@ -92,8 +93,8 @@ public interface CommandEvent {
 	 * @param message String Message to send to User/Member.
 	 * @return ReplyAction to queue.
 	 */
-	default ReplyAction reply(@Nonnull String message) {
-		return getEvent().reply(message);
+	default WebhookMessageAction<Message> reply(@Nonnull String message) {
+		return getEvent().getHook().sendMessage(message);
 	}
 
 	/**
@@ -102,7 +103,7 @@ public interface CommandEvent {
 	 * @param messageEmbed Embed Message to send to User/Member.
 	 * @return ReplyAction to queue.
 	 */
-	default ReplyAction reply(@Nonnull MessageEmbed messageEmbed) {
-		return getEvent().replyEmbeds(messageEmbed);
+	default WebhookMessageAction<Message> reply(@Nonnull MessageEmbed messageEmbed) {
+		return getEvent().getHook().sendMessageEmbeds(messageEmbed);
 	}
 }

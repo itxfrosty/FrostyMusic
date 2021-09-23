@@ -39,7 +39,7 @@ public class CommandHandlerListener extends ListenerAdapter {
 					}
 				}
 
-				//event.deferReply().queue();
+				event.deferReply().queue();
 				command.execute(new CommandEventHandler(event));
 
 				break;

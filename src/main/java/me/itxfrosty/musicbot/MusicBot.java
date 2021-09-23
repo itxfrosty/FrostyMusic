@@ -2,7 +2,7 @@ package me.itxfrosty.musicbot;
 
 import me.itxfrosty.musicbot.audio.guild.GuildAudioManager;
 import me.itxfrosty.musicbot.commands.SlashCommandManager;
-import me.itxfrosty.musicbot.commands.cmd.PlayCommand;
+import me.itxfrosty.musicbot.commands.cmd.*;
 import me.itxfrosty.musicbot.data.Config;
 import me.itxfrosty.musicbot.factories.BotFactory;
 import me.itxfrosty.musicbot.listeners.CommandHandlerListener;
@@ -38,7 +38,21 @@ public class MusicBot {
 		guildAudioManager = new GuildAudioManager();
 		slashCommandManager = new SlashCommandManager(botFactory);
 
-		slashCommandManager.registerCommands(new PlayCommand(this));
+		slashCommandManager.registerCommands(
+				new PlayCommand(this),
+				new SkipCommand(this),
+				new QueueCommand(this),
+				new LeaveCommand(this),
+				new VolumeCommand(this),
+				new JoinCommand(this),
+				new ShuffleCommand(this),
+				new PauseCommand(this),
+				new NPCommand(this),
+				new ResumeCommand(this),
+				new SeekCommand(this),
+				new SkipToCommand(this),
+				new ClearCommand(this),
+				new BassBoostCommand(this));
 	}
 
 	public static void main(String[] args) {
