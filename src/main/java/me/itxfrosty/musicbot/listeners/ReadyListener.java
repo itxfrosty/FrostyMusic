@@ -3,6 +3,8 @@ package me.itxfrosty.musicbot.listeners;
 import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.commands.SlashCommand;
 import me.itxfrosty.musicbot.commands.SlashCommandManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -21,7 +23,16 @@ public class ReadyListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildReady(@NotNull GuildReadyEvent event) {
-		final CommandListUpdateAction action = event.getGuild().updateCommands();
+		this.registerSlashCommands(event.getGuild());
+	}
+
+	@Override
+	public void onGuildJoin(@NotNull GuildJoinEvent event) {
+		this.registerSlashCommands(event.getGuild());
+	}
+
+	private void registerSlashCommands(Guild guild) {
+		final CommandListUpdateAction action = guild.updateCommands();
 		final List<CommandData> commandDataList = new ArrayList<>();
 
 		for (SlashCommand command : musicBot.getSlashCommandManager().getCommands()) {
@@ -36,4 +47,5 @@ public class ReadyListener extends ListenerAdapter {
 
 		action.addCommands(commandDataList).queue();
 	}
+
 }

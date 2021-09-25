@@ -3,7 +3,10 @@ package me.itxfrosty.musicbot.audio.sources;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.specification.Album;
+import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import me.itxfrosty.musicbot.data.Config;
@@ -106,6 +109,30 @@ public class SpotifySource {
 	}
 
 	/**
+	 * Get's album as a list of songs.
+	 *
+	 * @param id ID of album.
+	 * @return List of album song's in song name + artist name.
+	 * @throws IOException If an I/O error occurs while creating the input stream.
+	 * @throws ParseException String parsing error.
+	 * @throws SpotifyWebApiException The Web API returned an error further specified in this exception's root cause.
+	 */
+	public List<String> getAlbum(String id) throws IOException, ParseException, SpotifyWebApiException {
+		final List<String> albumSongs = new ArrayList<>();
+		final Album album = spotifyApi.getAlbum(id).build().execute();
+
+		for (ArtistSimplified artistSimplified : album.getArtists()) {
+			for (TrackSimplified songs : album.getTracks().getItems()) {
+				albumSongs.add(songs.getName() + " " + artistSimplified.getName());
+			}
+
+			return albumSongs;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get's Name of playlist.
 	 *
 	 * @param id ID of playlist
@@ -118,6 +145,18 @@ public class SpotifySource {
 		return spotifyApi.getPlaylist(id).build().execute().getName();
 	}
 
+	/**
+	 * Get's name of album.
+	 *
+	 * @param id ID of album.
+	 * @return Album name.
+	 * @throws IOException If an I/O error occurs while creating the input stream.
+	 * @throws ParseException String parsing error.
+	 * @throws SpotifyWebApiException The Web API returned an error further specified in this exception's root cause.
+	 */
+	public String getAlbumName(String id) throws IOException, ParseException, SpotifyWebApiException {
+		return spotifyApi.getAlbum(id).build().execute().getName();
+	}
 
 	/**
 	 * Get's Song from URL and translate it to a name and an artisit.

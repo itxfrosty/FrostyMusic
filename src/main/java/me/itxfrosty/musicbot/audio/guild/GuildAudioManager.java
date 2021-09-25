@@ -89,7 +89,7 @@ public class GuildAudioManager {
 	 */
 	public void leaveVoiceChannel(Guild guild) {
 		guild.getAudioManager().closeAudioConnection();
-		getGuildAudio(guild).getTrackScheduler().clearQueue();
+		this.getGuildAudio(guild).getTrackScheduler().clearQueue();
 	}
 
 	/**
@@ -103,10 +103,6 @@ public class GuildAudioManager {
 		final GuildMusicManager musicManager = getGuildAudio(event.getGuild());
 		final Member member = event.getMember();
 
-		if (sendMessage) {
-			//event.getEvent().deferReply().queue();
-		}
-
 		if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel() || member.getVoiceState().getChannel() == null) {
 			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Please connect to a voice channel first!").build()).queue();
 			return;
@@ -114,15 +110,22 @@ public class GuildAudioManager {
 
 		this.joinVoiceChannel(member.getVoiceState().getChannel(), event.getChannel(), event.getGuild());
 		final TrackScheduler trackScheduler = musicManager.getTrackScheduler();
-		final String finalTrackURL = this.getSong(trackURL, event);
+		final String finalTrackURL = this.searchForSong(trackURL, event);
 
 		if (finalTrackURL == null) {
 			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
 		}
 
 		assert finalTrackURL != null;
+		/* Spotify Playlist */
 		if (finalTrackURL.startsWith("Spotify.PLAYLIST ")) {
 			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("Spotify.PLAYLIST ","") + "`").build()).queue();
+			return;
+		}
+
+		/* Spotify Album */
+		if (finalTrackURL.startsWith("Spotify.ALBUM ")) {
+			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading album `" + finalTrackURL.replace("Spotify.ALBUM ","") + "`").build()).queue();
 			return;
 		}
 
@@ -149,6 +152,12 @@ public class GuildAudioManager {
 						event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
 					}
 
+				}
+
+				if (trackScheduler.getTrackQueue().contains(audioTrack)) {
+					logger.info("Clone Song Found: " + audioTrack.getInfo().title);
+					trackScheduler.queueSong(audioTrack.makeClone());
+					return;
 				}
 
 				trackScheduler.queueSong(audioTrack);
@@ -242,7 +251,14 @@ public class GuildAudioManager {
 		});
 	}
 
-	private String getSong(String song, CommandEvent event) {
+	/**
+	 * Get's Song and then make's a search link.
+	 *
+	 * @param song Song to search for.
+	 * @param event Replies to messages.
+	 * @return Song name in correct format: ytsearch: [Song Name]
+	 */
+	private String searchForSong(String song, CommandEvent event) {
 		final RequestType requestType = Objects.requireNonNull(RequestType.getRequestType(song));
 		try {
 
@@ -289,6 +305,32 @@ public class GuildAudioManager {
 					}
 
 					return "Spotify.PLAYLIST " + playlistName;
+				}
+
+				if (spotifyType == SpotifyType.ALBUM) {
+
+					String id = null;
+					if (song.startsWith("spotify:album:")) {
+						id = song.split(":")[2];
+					}
+					if (song.startsWith("open.spotify.com/album/")) {
+						String temp = song.split("/")[2];
+						id = temp.split("\\?")[0];
+					}
+					if (song.startsWith("https://open.spotify.com/album/")) {
+						String temp = song.split("/")[4];
+						id = temp.split("\\?")[0];
+					}
+
+					String albumName = spotifySource.getAlbumName(id);
+
+					logger.info("Loading Album: " + albumName);
+
+					for (String load : spotifySource.getAlbum(id)) {
+						loadAndPlay(event, load, false);
+					}
+
+					return "Spotify.ALBUM " + albumName;
 				}
 			}
 

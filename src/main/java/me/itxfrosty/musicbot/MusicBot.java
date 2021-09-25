@@ -10,28 +10,22 @@ import me.itxfrosty.musicbot.listeners.ReadyListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 public class MusicBot {
 	private final Logger logger = LoggerFactory.getLogger(MusicBot.class);
 
-	private final BotFactory botFactory;
 	private final GuildAudioManager guildAudioManager;
 	private final SlashCommandManager slashCommandManager;
 
 	public MusicBot() throws LoginException, InterruptedException {
-		Thread.currentThread().setName("FrostyMusic");
-		logger.info("Starting FrostyMusic V{}.", Config.VERSION);
+		Thread.currentThread().setName("MusicBot");
+		logger.info("Starting MusicBot V{}.", Config.VERSION);
 
-		botFactory = new BotFactory()
+		BotFactory botFactory = new BotFactory()
 				.setToken(Config.TOKEN)
 				.setMemberCachePolicy(MemberCachePolicy.ALL)
 				.registerIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_PRESENCES)
@@ -68,10 +62,6 @@ public class MusicBot {
 		}
 	}
 
-	public BotFactory getBotFactory() {
-		return botFactory;
-	}
-
 	public GuildAudioManager getGuildAudioManager() {
 		return guildAudioManager;
 	}
@@ -80,7 +70,4 @@ public class MusicBot {
 		return slashCommandManager;
 	}
 
-	public Logger getLogger() {
-		return logger;
-	}
 }
