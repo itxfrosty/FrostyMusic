@@ -26,9 +26,8 @@ public class VolumeCommand extends SlashCommand {
 		}
 
 		String volume = event.getEvent().getCommandString().replace("/volume value: ", "");
-		System.out.println(volume);
 
-		if (Integer.parseInt(volume) >= 400 || Integer.parseInt(volume) <= 50) {
+		if (Integer.parseInt(volume) >= 401 || Integer.parseInt(volume) <= 49) {
 			event.reply(new EmbedBuilder().setDescription("The volume is out of range! [50-400]").build()).queue();
 			return;
 		}

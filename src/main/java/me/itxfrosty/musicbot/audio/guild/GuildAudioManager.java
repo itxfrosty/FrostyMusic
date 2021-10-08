@@ -5,6 +5,13 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.beam.BeamAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.getyarn.GetyarnAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -15,6 +22,7 @@ import me.itxfrosty.musicbot.audio.sources.SpotifySource;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.objects.RequestType;
 import me.itxfrosty.musicbot.objects.SpotifyType;
+import me.itxfrosty.musicbot.objects.YoutubeType;
 import me.itxfrosty.musicbot.utils.MusicUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -38,6 +46,7 @@ public class GuildAudioManager {
 	private final Map<Long, GuildMusicManager> guildMusicManager;
 
 	public GuildAudioManager() {
+		logger.info("Loading AudioManager...");
 		this.guildMusicManager = new HashMap<>();
 		this.playerManager = new DefaultAudioPlayerManager();
 
@@ -48,7 +57,16 @@ public class GuildAudioManager {
 		AudioSourceManagers.registerRemoteSources(this.playerManager);
 		AudioSourceManagers.registerLocalSource(this.playerManager);
 
+		playerManager.registerSourceManager(new BeamAudioSourceManager());
+		playerManager.registerSourceManager(new HttpAudioSourceManager());
+		playerManager.registerSourceManager(new VimeoAudioSourceManager());
+		playerManager.registerSourceManager(new GetyarnAudioSourceManager());
 		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+		playerManager.registerSourceManager(new BandcampAudioSourceManager());
+		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
+		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+
+		logger.info("Loaded AudioManager!");
 	}
 
 	/**
@@ -104,28 +122,29 @@ public class GuildAudioManager {
 		final Member member = event.getMember();
 
 		if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel() || member.getVoiceState().getChannel() == null) {
-			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Please connect to a voice channel first!").build()).queue();
+			event.reply(new EmbedBuilder().setDescription("Please connect to a voice channel first!").build()).queue();
 			return;
 		}
 
 		this.joinVoiceChannel(member.getVoiceState().getChannel(), event.getChannel(), event.getGuild());
+
 		final TrackScheduler trackScheduler = musicManager.getTrackScheduler();
 		final String finalTrackURL = this.searchForSong(trackURL, event);
 
 		if (finalTrackURL == null) {
-			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
+			event.reply(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
+			return;
 		}
 
-		assert finalTrackURL != null;
 		/* Spotify Playlist */
 		if (finalTrackURL.startsWith("Spotify.PLAYLIST ")) {
-			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("Spotify.PLAYLIST ","") + "`").build()).queue();
+			event.reply(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("Spotify.PLAYLIST ","") + "`").build()).queue();
 			return;
 		}
 
 		/* Spotify Album */
 		if (finalTrackURL.startsWith("Spotify.ALBUM ")) {
-			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading album `" + finalTrackURL.replace("Spotify.ALBUM ","") + "`").build()).queue();
+			event.reply(new EmbedBuilder().setDescription("Loading album `" + finalTrackURL.replace("Spotify.ALBUM ","") + "`").build()).queue();
 			return;
 		}
 
@@ -143,13 +162,13 @@ public class GuildAudioManager {
 
 					if (sendMessage) {
 						event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
-						event.getEvent().getHook().sendMessageEmbeds(embed.build()).queue();
+						event.reply(embed.build()).queue();
 					}
 
 				} else {
 
 					if (sendMessage) {
-						event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
+						event.reply(new EmbedBuilder().setDescription("Queued " + audioTrack.getInfo().uri + "\n" + "[" + member.getUser().getAsTag() + "]").build()).queue();
 					}
 
 				}
@@ -180,9 +199,13 @@ public class GuildAudioManager {
 									.setThumbnail(MusicUtils.getThumbnail(playlist.getTracks().get(0)));
 
 							event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
-							event.getEvent().getHook().sendMessageEmbeds(embed.build()).queue();
+							event.reply(embed.build()).queue();
 						} else {
-							event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
+							String url = audioTrack.getInfo().uri;
+							String name = audioTrack.getInfo().title;
+							String link = "<a href='" + url + "' target='_blank'>'" + name + "'</a>";
+
+							event.reply(new EmbedBuilder().setDescription("Queued " + link + "\n" + "[" + member.getUser().getAsMention() + "]").build()).queue();
 						}
 					}
 
@@ -190,7 +213,7 @@ public class GuildAudioManager {
 
 
 				} else  {
-					event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Loading playlist `" + playlist.getName() + "`").build()).queue();
+					event.reply(new EmbedBuilder().setDescription("Loading playlist `" + playlist.getName() + "`").build()).queue();
 
 					logger.info("Loading Playlist: " + playlist.getName());
 
@@ -204,14 +227,14 @@ public class GuildAudioManager {
 			@Override
 			public void noMatches() {
 				logger.info("Could not find song!");
-				event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Could not find song!").build()).queue();
+				event.reply(new EmbedBuilder().setDescription("Could not find song!").build()).queue();
 			}
 
 			@Override
 			public void loadFailed(FriendlyException exception) {
 				logger.error("An error occurred loading the song!", exception);
 
-				event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
+				event.reply(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
 			}
 		});
 	}
@@ -264,6 +287,17 @@ public class GuildAudioManager {
 
 			/* Request Type: Youtube URL */
 			if (requestType == RequestType.YOUTUBE) {
+				final YoutubeType youtubeType = YoutubeType.getYouTubeType(song);
+
+				if (youtubeType == YoutubeType.TRACK) {
+					return song;
+				}
+
+				if (youtubeType == YoutubeType.PLAYLIST) {
+					// TODO: Playlist loading.
+
+				}
+
 				return song;
 			}
 
@@ -300,7 +334,7 @@ public class GuildAudioManager {
 
 					logger.info("Loading Playlist: " + playlistName);
 
-					for (String load : spotifySource.getPlaylist(id)) {
+					for (String load : spotifySource.getPlaylistByID(id)) {
 						loadAndPlay(event, load, false);
 					}
 

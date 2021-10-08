@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TrackScheduler extends AudioEventAdapter {
 
@@ -184,7 +185,7 @@ public class TrackScheduler extends AudioEventAdapter {
 				.setThumbnail(MusicUtils.getThumbnail(track));
 		builder.addField("Up Next", (trackQueue.size() > 1) ? ("[" + trackQueue.get(1).getInfo().title + "](" + trackQueue.get(1).getInfo().uri + ")") : "Nothing", true);
 
-		logChannel.sendMessageEmbeds(builder.build()).queue();
+		logChannel.sendMessageEmbeds(builder.build()).queue((message -> message.delete().queueAfter(track.getDuration(), TimeUnit.MILLISECONDS)));
 	}
 
 	@Override

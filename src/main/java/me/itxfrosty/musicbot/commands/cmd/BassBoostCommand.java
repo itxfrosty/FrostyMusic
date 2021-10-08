@@ -5,6 +5,7 @@ import me.itxfrosty.musicbot.MusicBot;
 import me.itxfrosty.musicbot.audio.guild.GuildAudioManager;
 import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.commands.SlashCommand;
+import me.itxfrosty.musicbot.utils.NumberUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -36,15 +37,20 @@ public class BassBoostCommand extends SlashCommand {
 			return;
 		}
 
-		double input = Double.parseDouble(event.getEvent().getCommandString().replace("/bassboost input: ", ""));
+		final double input = Double.parseDouble(event.getEvent().getCommandString().replace("/bassboost input: ", ""));
 
-		if (input == -9999 || input == 0) {
+		if (input == 50|| input == 0) {
 			musicManager.getGuildAudio(event.getGuild()).getAudioPlayer().setFilterFactory(null);
 			event.reply(new EmbedBuilder().setDescription("Bassboost has been disabled.").build()).queue();
 			return;
 		}
 
-		EqualizerFactory equalizer = new EqualizerFactory();
+		if (input >= 0 || input <= 500) {
+			event.reply(new EmbedBuilder().setDescription("The bassboost is out of range! [0-500]").build()).queue();
+			return;
+		}
+
+		final EqualizerFactory equalizer = new EqualizerFactory();
 
 		for (int i = 0; i < BASS_BOOST.length; i++) {
 			equalizer.setGain(i, (float) (BASS_BOOST[i] + (input / 100)));
@@ -52,6 +58,6 @@ public class BassBoostCommand extends SlashCommand {
 
 		musicManager.getGuildAudio(event.getGuild()).getAudioPlayer().setFilterFactory(equalizer);
 
-		event.reply(new EmbedBuilder().setDescription("Bassboost has been applied, with the level ").build()).queue();
+		event.reply(new EmbedBuilder().setDescription("Bassboost has been applied, at the level " + input + "%.").build()).queue();
 	}
 }

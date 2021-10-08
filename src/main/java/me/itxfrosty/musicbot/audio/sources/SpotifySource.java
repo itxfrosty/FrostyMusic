@@ -2,11 +2,9 @@ package me.itxfrosty.musicbot.audio.sources;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.IPlaylistItem;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
-import com.wrapper.spotify.model_objects.specification.Album;
-import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
-import com.wrapper.spotify.model_objects.specification.Track;
-import com.wrapper.spotify.model_objects.specification.TrackSimplified;
+import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import me.itxfrosty.musicbot.data.Config;
@@ -108,6 +106,19 @@ public class SpotifySource {
 		return finalOutput;
 	}
 
+
+	public List<String> getPlaylistByID(String id) throws IOException, ParseException, SpotifyWebApiException {
+		final List<String> playlistSongs = new ArrayList<>();
+		final Playlist playlist = spotifyApi.getPlaylist(id).build().execute();
+
+		for (PlaylistTrack playlistTrack : playlist.getTracks().getItems()) {
+			IPlaylistItem item = playlistTrack.getTrack();
+			playlistSongs.add(item.getName() + " " + getTrackArtists(item.getId()));
+		}
+
+		return playlistSongs;
+	}
+
 	/**
 	 * Get's album as a list of songs.
 	 *
@@ -120,16 +131,13 @@ public class SpotifySource {
 	public List<String> getAlbum(String id) throws IOException, ParseException, SpotifyWebApiException {
 		final List<String> albumSongs = new ArrayList<>();
 		final Album album = spotifyApi.getAlbum(id).build().execute();
+		final String artist = album.getArtists()[0].getName();
 
-		for (ArtistSimplified artistSimplified : album.getArtists()) {
-			for (TrackSimplified songs : album.getTracks().getItems()) {
-				albumSongs.add(songs.getName() + " " + artistSimplified.getName());
-			}
-
-			return albumSongs;
+		for (TrackSimplified songs : album.getTracks().getItems()) {
+			albumSongs.add(songs.getName() + " " + artist);
 		}
 
-		return null;
+		return albumSongs;
 	}
 
 	/**

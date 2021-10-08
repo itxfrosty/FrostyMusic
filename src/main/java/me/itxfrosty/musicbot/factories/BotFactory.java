@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -24,17 +25,28 @@ import java.util.List;
  */
 public class BotFactory {
 
+	/* Shard Manager Interface for the Discord Bot */
 	private ShardManager shardManager;
+	/* Shard Manager for the Discord Bot. */
 	private final DefaultShardManagerBuilder defaultShardManager;
 
+	/* Discord Account Token. */
 	private String token;
+	/* Discord Account Activity. */
 	private Activity activity;
+	/* Discord Account Status. */
 	private OnlineStatus onlineStatus;
+	/* Discord Account Cache Policy. */
 	private MemberCachePolicy memberCachePolicy;
 
-	private final List<CacheFlag> enablecacheFlagList;
-	private final List<CacheFlag> disablecacheFlagList;
+	/* Cache Flag Enable/Disable List */
+	private final List<CacheFlag> enableCacheFlagList;
+	private final List<CacheFlag> disableCacheFlagList;
+
+	/* Gateway Intent List */
 	private final List<GatewayIntent> gatewayIntentList;
+
+	/* Listeners List */
 	private final List<ListenerAdapter> eventListenersList;
 
 	/**
@@ -47,8 +59,8 @@ public class BotFactory {
 
 		this.gatewayIntentList = new ArrayList<>();
 		this.eventListenersList = new ArrayList<>();
-		this.enablecacheFlagList = new ArrayList<>();
-		this.disablecacheFlagList = new ArrayList<>();
+		this.enableCacheFlagList = new ArrayList<>();
+		this.disableCacheFlagList = new ArrayList<>();
 
 		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(token);
 	}
@@ -59,8 +71,8 @@ public class BotFactory {
 	public BotFactory() {
 		this.gatewayIntentList = new ArrayList<>();
 		this.eventListenersList = new ArrayList<>();
-		this.enablecacheFlagList = new ArrayList<>();
-		this.disablecacheFlagList = new ArrayList<>();
+		this.enableCacheFlagList = new ArrayList<>();
+		this.disableCacheFlagList = new ArrayList<>();
 
 		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(null);
 	}
@@ -168,7 +180,7 @@ public class BotFactory {
 	 * @return this.
 	 */
 	public BotFactory registerCache(CacheFlag cacheFlag) {
-		this.enablecacheFlagList.add(cacheFlag);
+		this.enableCacheFlagList.add(cacheFlag);
 
 		return this;
 	}
@@ -180,7 +192,7 @@ public class BotFactory {
 	 * @return this.
 	 */
 	public BotFactory registerCaches(CacheFlag... cacheFlag) {
-		this.enablecacheFlagList.addAll(Arrays.asList(cacheFlag));
+		this.enableCacheFlagList.addAll(Arrays.asList(cacheFlag));
 
 		return this;
 	}
@@ -192,7 +204,7 @@ public class BotFactory {
 	 * @return this.
 	 */
 	public BotFactory disableCache(CacheFlag cacheFlag) {
-		this.enablecacheFlagList.add(cacheFlag);
+		this.disableCacheFlagList.add(cacheFlag);
 
 		return this;
 	}
@@ -204,7 +216,7 @@ public class BotFactory {
 	 * @return this.
 	 */
 	public BotFactory disableCaches(CacheFlag... cacheFlag) {
-		this.enablecacheFlagList.addAll(Arrays.asList(cacheFlag));
+		this.disableCacheFlagList.addAll(Arrays.asList(cacheFlag));
 
 		return this;
 	}
@@ -228,8 +240,8 @@ public class BotFactory {
 
 		if (!this.gatewayIntentList.isEmpty()) this.defaultShardManager.enableIntents(this.gatewayIntentList);
 		if (!this.eventListenersList.isEmpty()) this.eventListenersList.forEach(this.defaultShardManager::addEventListeners);
-		if (!this.enablecacheFlagList.isEmpty()) this.defaultShardManager.enableCache(this.enablecacheFlagList);
-		if (!this.disablecacheFlagList.isEmpty()) this.defaultShardManager.disableCache(this.disablecacheFlagList);
+		if (!this.enableCacheFlagList.isEmpty()) this.defaultShardManager.enableCache(this.enableCacheFlagList);
+		if (!this.disableCacheFlagList.isEmpty()) this.defaultShardManager.disableCache(this.disableCacheFlagList);
 
 		this.defaultShardManager.setShardsTotal(-1);
 		this.defaultShardManager.setAudioSendFactory(new NativeAudioSendFactory());
@@ -237,23 +249,23 @@ public class BotFactory {
 		this.shardManager = this.defaultShardManager.build();
 	}
 
-	public String getToken() {
+	public @NotNull String getToken() {
 		return this.token;
 	}
 
-	public Activity getActivity() {
+	public @NotNull Activity getActivity() {
 		return this.activity;
 	}
 
-	public ShardManager getShardManager() {
+	public @NotNull ShardManager getShardManager() {
 		return this.shardManager;
 	}
 
-	public OnlineStatus getOnlineStatus() {
+	public @NotNull OnlineStatus getOnlineStatus() {
 		return this.onlineStatus;
 	}
 
-	public MemberCachePolicy getMemberCachePolicy() {
+	public @NotNull MemberCachePolicy getMemberCachePolicy() {
 		return this.memberCachePolicy;
 	}
 }

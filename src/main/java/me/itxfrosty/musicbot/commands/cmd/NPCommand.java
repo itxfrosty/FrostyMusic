@@ -7,7 +7,7 @@ import me.itxfrosty.musicbot.commands.CommandEvent;
 import me.itxfrosty.musicbot.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class NPCommand extends SlashCommand {
+public class  NPCommand extends SlashCommand {
 	private final GuildAudioManager musicManager;
 
 	public NPCommand(final MusicBot musicBot) {
