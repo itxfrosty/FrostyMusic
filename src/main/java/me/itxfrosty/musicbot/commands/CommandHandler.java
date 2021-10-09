@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +17,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CommandHandler extends ListenerAdapter {
+	private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
 	public final List<SlashCommand> commandList = new ArrayList<>();
 
 	public CommandHandler(MusicBot musicBot) {
+		this.logger.info("Registering Commands...");
 		this.registerCommands(
 				new PlayCommand(musicBot),
 				new SkipCommand(musicBot),
@@ -34,6 +38,7 @@ public class CommandHandler extends ListenerAdapter {
 				new SkipToCommand(musicBot),
 				new ClearCommand(musicBot),
 				new BassBoostCommand(musicBot));
+		this.logger.info("Registered Commands!");
 	}
 
 	/**

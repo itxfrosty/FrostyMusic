@@ -10,7 +10,7 @@ import java.util.Properties;
 public class Config {
 	private static final Logger logger = LoggerFactory.getLogger(MusicBot.class);
 
-	private static final Properties PROPERTIES = loadProperties();
+	public static final Properties PROPERTIES = loadProperties();
 
 	/* Discord Bot Version */
 	public static final String VERSION = PROPERTIES.getProperty("version");

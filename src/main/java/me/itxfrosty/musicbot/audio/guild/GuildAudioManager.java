@@ -46,7 +46,7 @@ public class GuildAudioManager {
 	private final Map<Long, GuildMusicManager> guildMusicManager;
 
 	public GuildAudioManager() {
-		logger.info("Loading AudioManager...");
+		this.logger.info("Loading AudioManager...");
 		this.guildMusicManager = new HashMap<>();
 		this.playerManager = new DefaultAudioPlayerManager();
 
@@ -57,16 +57,16 @@ public class GuildAudioManager {
 		AudioSourceManagers.registerRemoteSources(this.playerManager);
 		AudioSourceManagers.registerLocalSource(this.playerManager);
 
-		playerManager.registerSourceManager(new BeamAudioSourceManager());
-		playerManager.registerSourceManager(new HttpAudioSourceManager());
-		playerManager.registerSourceManager(new VimeoAudioSourceManager());
-		playerManager.registerSourceManager(new GetyarnAudioSourceManager());
-		playerManager.registerSourceManager(new YoutubeAudioSourceManager());
-		playerManager.registerSourceManager(new BandcampAudioSourceManager());
-		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+		this.playerManager.registerSourceManager(new BeamAudioSourceManager());
+		this.playerManager.registerSourceManager(new HttpAudioSourceManager());
+		this.playerManager.registerSourceManager(new VimeoAudioSourceManager());
+		this.playerManager.registerSourceManager(new GetyarnAudioSourceManager());
+		this.playerManager.registerSourceManager(new YoutubeAudioSourceManager());
+		this.playerManager.registerSourceManager(new BandcampAudioSourceManager());
+		this.playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
+		this.playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
 
-		logger.info("Loaded AudioManager!");
+		this.logger.info("Loaded AudioManager!");
 	}
 
 	/**
@@ -75,9 +75,9 @@ public class GuildAudioManager {
 	 * @param guild Guild to get AudioManager.
 	 * @return GuildMusicManager.
 	 */
-	public synchronized GuildMusicManager getGuildAudio(Guild guild) {
+	public synchronized GuildMusicManager getGuildAudio(final Guild guild) {
 		return this.guildMusicManager.computeIfAbsent(guild.getIdLong(), (guildAudio) -> {
-			final GuildMusicManager guildMusicManager = new GuildMusicManager(this.playerManager,this, guild);
+			final GuildMusicManager guildMusicManager = new GuildMusicManager(this.playerManager, this, guild);
 
 			guild.getAudioManager().setSendingHandler(guildMusicManager.getAudioSendProvider());
 
@@ -105,7 +105,7 @@ public class GuildAudioManager {
 	 *
 	 * @param guild Guild
 	 */
-	public void leaveVoiceChannel(Guild guild) {
+	public void leaveVoiceChannel(final Guild guild) {
 		guild.getAudioManager().closeAudioConnection();
 		this.getGuildAudio(guild).getTrackScheduler().clearQueue();
 	}
@@ -117,7 +117,7 @@ public class GuildAudioManager {
 	 * @param trackURL    The URL of the track you want to play.
 	 * @param sendMessage Sends message if true.
 	 */
-	public void loadAndPlay(final CommandEvent event, String trackURL, final boolean sendMessage) {
+	public void loadAndPlay(final CommandEvent event, final String trackURL, final boolean sendMessage) {
 		final GuildMusicManager musicManager = getGuildAudio(event.getGuild());
 		final Member member = event.getMember();
 
@@ -168,7 +168,7 @@ public class GuildAudioManager {
 				} else {
 
 					if (sendMessage) {
-						event.reply(new EmbedBuilder().setDescription("Queued " + audioTrack.getInfo().uri + "\n" + "[" + member.getUser().getAsTag() + "]").build()).queue();
+						event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
 					}
 
 				}
@@ -201,11 +201,7 @@ public class GuildAudioManager {
 							event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
 							event.reply(embed.build()).queue();
 						} else {
-							String url = audioTrack.getInfo().uri;
-							String name = audioTrack.getInfo().title;
-							String link = "<a href='" + url + "' target='_blank'>'" + name + "'</a>";
-
-							event.reply(new EmbedBuilder().setDescription("Queued " + link + "\n" + "[" + member.getUser().getAsMention() + "]").build()).queue();
+							event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
 						}
 					}
 
@@ -246,7 +242,7 @@ public class GuildAudioManager {
 	 * @param guild Guild.
 	 * @param queueSong If song need's to be queued.
 	 */
-	public void addTrack(String name, Guild guild, boolean queueSong) {
+	public void addTrack(final String name, final Guild guild, final boolean queueSong) {
 		playerManager.loadItem(name, new AudioLoadResultHandler() {
 			final TrackScheduler scheduler = getGuildAudio(guild).getTrackScheduler();
 
@@ -281,7 +277,7 @@ public class GuildAudioManager {
 	 * @param event Replies to messages.
 	 * @return Song name in correct format: ytsearch: [Song Name]
 	 */
-	private String searchForSong(String song, CommandEvent event) {
+	private String searchForSong(final String song, final CommandEvent event) {
 		final RequestType requestType = Objects.requireNonNull(RequestType.getRequestType(song));
 		try {
 

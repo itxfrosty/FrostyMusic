@@ -1,6 +1,8 @@
 package me.itxfrosty.musicbot.factories;
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
+import lombok.Getter;
+import me.itxfrosty.musicbot.MusicBot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -13,6 +15,8 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import java.util.List;
  * @author itxfrosty
  */
 public class BotFactory {
+	private final Logger logger = LoggerFactory.getLogger(BotFactory.class);
 
 	/* Shard Manager Interface for the Discord Bot */
 	private ShardManager shardManager;
@@ -38,6 +43,9 @@ public class BotFactory {
 	private OnlineStatus onlineStatus;
 	/* Discord Account Cache Policy. */
 	private MemberCachePolicy memberCachePolicy;
+
+	/* Built if the bot has started. */
+	private boolean built;
 
 	/* Cache Flag Enable/Disable List */
 	private final List<CacheFlag> enableCacheFlagList;
@@ -62,6 +70,8 @@ public class BotFactory {
 		this.enableCacheFlagList = new ArrayList<>();
 		this.disableCacheFlagList = new ArrayList<>();
 
+		this.built = false;
+
 		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(token);
 	}
 
@@ -73,6 +83,8 @@ public class BotFactory {
 		this.eventListenersList = new ArrayList<>();
 		this.enableCacheFlagList = new ArrayList<>();
 		this.disableCacheFlagList = new ArrayList<>();
+
+		this.built = false;
 
 		this.defaultShardManager = DefaultShardManagerBuilder.createDefault(null);
 	}
@@ -221,16 +233,22 @@ public class BotFactory {
 		return this;
 	}
 
-
 	/**
-	 * Build's Bot.
+	 * Build's Bot and start's Login Process.
 	 *
 	 * @throws LoginException Discord Bot Login Exception.
 	 */
 	public void build() throws LoginException {
+		if (built) {
+			this.logger.error("Bot already built! Please use a new instance, if you would like to start new bot.");
+			return;
+		}
+
 		if (this.token == null ) {
 			throw new LoginException("Bot token is null. Shutting down...");
 		}
+
+		this.logger.debug("Starting login process...");
 
 		this.defaultShardManager.setToken(token);
 
@@ -244,9 +262,31 @@ public class BotFactory {
 		if (!this.disableCacheFlagList.isEmpty()) this.defaultShardManager.disableCache(this.disableCacheFlagList);
 
 		this.defaultShardManager.setShardsTotal(-1);
-		this.defaultShardManager.setAudioSendFactory(new NativeAudioSendFactory());
+
+		if (this.isNas()) {
+			this.logger.info("Enabling NAS...");
+			this.defaultShardManager.setAudioSendFactory(new NativeAudioSendFactory());
+		}
+
 
 		this.shardManager = this.defaultShardManager.build();
+		this.built = true;
+	}
+
+	/**
+	 * If Nas-Compatible.
+	 *
+	 * @return If Nas-Compatible.
+	 */
+	private boolean isNas() {
+		final String os = System.getProperty("os.name").toLowerCase();
+		final String arch = System.getProperty("os.arch");
+
+		return (os.contains("windows") || os.contains("linux")) && !arch.equalsIgnoreCase("arm") && !arch.equalsIgnoreCase("arm-linux");
+	}
+
+	public boolean isBuilt() {
+		return built;
 	}
 
 	public @NotNull String getToken() {
@@ -267,5 +307,21 @@ public class BotFactory {
 
 	public @NotNull MemberCachePolicy getMemberCachePolicy() {
 		return this.memberCachePolicy;
+	}
+
+	public @NotNull List<CacheFlag> getEnableCacheFlagList() {
+		return enableCacheFlagList;
+	}
+
+	public @NotNull List<CacheFlag> getDisableCacheFlagList() {
+		return disableCacheFlagList;
+	}
+
+	public @NotNull List<GatewayIntent> getGatewayIntentList() {
+		return gatewayIntentList;
+	}
+
+	public @NotNull List<ListenerAdapter> getEventListenersList() {
+		return eventListenersList;
 	}
 }
