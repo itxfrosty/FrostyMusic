@@ -15,7 +15,7 @@ public class VolumeCommand extends SlashCommand {
 		super("volume", "Set's the Volume of the Audio Player.", "/volume <volume>", false);
 		this.musicManager = musicBot.getGuildAudioManager();
 
-		getOptionData().add(new OptionData(OptionType.STRING,"value","The value to set the volume to.", true));
+		this.addOption(new OptionData(OptionType.STRING,"value","The value to set the volume to.", true));
 	}
 
 	@Override

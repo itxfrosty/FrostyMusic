@@ -17,7 +17,7 @@ public class BassBoostCommand extends SlashCommand {
 	public BassBoostCommand(final MusicBot musicBot) {
 		super("bassboost", "BassBoost the song to the amount you want.","/bassboost",false);
 
-		getOptionData().add(new OptionData(OptionType.STRING, "input", "Amount to Bassboost.", true));
+		this.addOption(new OptionData(OptionType.STRING, "input", "Amount to Bassboost.", true));
 
 		musicManager = musicBot.getGuildAudioManager();
 	}

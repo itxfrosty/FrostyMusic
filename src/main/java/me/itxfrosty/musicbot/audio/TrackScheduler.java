@@ -42,7 +42,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @param track Track to Queue.
 	 */
 	public void queueSong(AudioTrack track) {
-		trackQueue.add(track);
+		this.trackQueue.add(track);
 		if (audioPlayer.getPlayingTrack() == null) audioPlayer.playTrack(trackQueue.get(0));
 	}
 
@@ -50,15 +50,15 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * Clear's Audio Queue.
 	 */
 	public void clearQueue() {
-		trackQueue.clear();
-		audioPlayer.stopTrack();
+		this.trackQueue.clear();
+		this.audioPlayer.stopTrack();
 	}
 
 	/**
 	 * Skips Song.
 	 */
 	public void skip() {
-		audioPlayer.getPlayingTrack().setPosition(audioPlayer.getPlayingTrack().getDuration());
+		this.audioPlayer.getPlayingTrack().setPosition(this.audioPlayer.getPlayingTrack().getDuration());
 	}
 
 	/**
@@ -68,10 +68,10 @@ public class TrackScheduler extends AudioEventAdapter {
 	 */
 	public void skipTo(int pos) {
 		if (pos > 1) {
-			trackQueue.subList(1, pos).clear();
+			this.trackQueue.subList(1, pos).clear();
 		}
 
-		skip();
+		this.skip();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @return If Paused.
 	 */
 	public boolean isPaused() {
-		return audioPlayer.isPaused();
+		return this.audioPlayer.isPaused();
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @param paused Pause or not.
 	 */
 	public void setPaused(boolean paused) {
-		audioPlayer.setPaused(paused);
+		this.audioPlayer.setPaused(paused);
 	}
 
 	/**
@@ -98,14 +98,14 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @param volume Volume to set Audio player.
 	 */
 	public void setVolume(int volume) {
-		audioPlayer.setVolume(volume);
+		this.audioPlayer.setVolume(volume);
 	}
 
 	/**
 	 * Shuffles queue of songs.
 	 */
 	public void shuffle() {
-		Collections.shuffle(trackQueue.subList(1, trackQueue.size()));
+		Collections.shuffle(this.trackQueue.subList(1, this.trackQueue.size()));
 	}
 
 	/**
@@ -114,12 +114,12 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @param channel Message Channel to send message.
 	 */
 	public void toggleLoop(@Nullable MessageChannel channel) {
-		if (loopQueue && !loop) toggleLoopQueue(channel);
-		if (!loop) {
-			loop = true;
+		if (this.loopQueue && !this.loop) toggleLoopQueue(channel);
+		if (!this.loop) {
+			this.loop = true;
 			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat_one: Loop Enabled!").build()).queue();
 		} else {
-			loop = false;
+			this.loop = false;
 			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Disabled!").build()).queue();
 		}
 	}
@@ -130,12 +130,12 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @param channel Message Channel to send message.
 	 */
 	public void toggleLoopQueue(@Nullable MessageChannel channel) {
-		if (loop && !loopQueue) toggleLoop(channel);
-		if (!loopQueue) {
-			loopQueue = true;
+		if (this.loop && !this.loopQueue) toggleLoop(channel);
+		if (!this.loopQueue) {
+			this.loopQueue = true;
 			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat: Loop Queue Enabled!").build()).queue();
 		} else {
-			loopQueue = false;
+			this.loopQueue = false;
 			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Queue Disabled!").build()).queue();
 		}
 
@@ -145,7 +145,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * Clear's Queue.
 	 */
 	public void resetQueue() {
-		trackQueue.clear();
+		this.trackQueue.clear();
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @return List of AudioTracks.
 	 */
 	public List<AudioTrack> getTrackQueue() {
-		return trackQueue;
+		return this.trackQueue;
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	 * @return MessageChannel
 	 */
 	public TextChannel getLogChannel() {
-		return logChannel;
+		return this.logChannel;
 	}
 
 
@@ -183,22 +183,21 @@ public class TrackScheduler extends AudioEventAdapter {
 				.setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
 				.addField("Song Duration", MusicUtils.getDuration(track), true)
 				.setThumbnail(MusicUtils.getThumbnail(track));
-		builder.addField("Up Next", (trackQueue.size() > 1) ? ("[" + trackQueue.get(1).getInfo().title + "](" + trackQueue.get(1).getInfo().uri + ")") : "Nothing", true);
-
-		logChannel.sendMessageEmbeds(builder.build()).queue((message -> message.delete().queueAfter(track.getDuration(), TimeUnit.MILLISECONDS)));
+		builder.addField("Up Next", (this.trackQueue.size() > 1) ? ("[" + this.trackQueue.get(1).getInfo().title + "](" + this.trackQueue.get(1).getInfo().uri + ")") : "Nothing", true);
+		this.logChannel.sendMessageEmbeds(builder.build()).queue((message -> message.delete().queueAfter(track.getDuration(), TimeUnit.MILLISECONDS)));
 	}
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		trackQueue.remove(track);
-		if (loop && endReason.mayStartNext) {
-			guildAudioManager.addTrack(track.getInfo().uri, guild, false);
-		} else if (loopQueue && endReason.mayStartNext) {
-			guildAudioManager.addTrack(track.getInfo().uri, guild, true);
-		} else if (endReason.mayStartNext && trackQueue.size() > 0) player.playTrack(trackQueue.get(0));
+		this.trackQueue.remove(track);
+		if (this.loop && endReason.mayStartNext) {
+			this.guildAudioManager.addTrack(track.getInfo().uri,this. guild, false);
+		} else if (this.loopQueue && endReason.mayStartNext) {
+			this.guildAudioManager.addTrack(track.getInfo().uri, this.guild, true);
+		} else if (endReason.mayStartNext && this.trackQueue.size() > 0) player.playTrack(this.trackQueue.get(0));
 	}
 
 	public AudioPlayer getAudioPlayer() {
-		return audioPlayer;
+		return this.audioPlayer;
 	}
 }

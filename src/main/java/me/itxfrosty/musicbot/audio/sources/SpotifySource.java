@@ -7,7 +7,7 @@ import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
-import me.itxfrosty.musicbot.data.Config;
+import me.itxfrosty.musicbot.data.MusicConfig;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,8 +23,8 @@ import java.util.Scanner;
 
 public class SpotifySource {
 
-	private final String CLIENT_ID = Config.SPOTIFY_CLIENT_ID;
-	private final String CLIENT_SECRET = Config.SPOTIFY_CLIENT_SECRET;
+	private final String CLIENT_ID = MusicConfig.SPOTIFY_CLIENT_ID;
+	private final String CLIENT_SECRET = MusicConfig.SPOTIFY_CLIENT_SECRET;
 
 	private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
 			.setClientId(CLIENT_ID)
@@ -105,7 +105,6 @@ public class SpotifySource {
 		}
 		return finalOutput;
 	}
-
 
 	public List<String> getPlaylistByID(String id) throws IOException, ParseException, SpotifyWebApiException {
 		final List<String> playlistSongs = new ArrayList<>();

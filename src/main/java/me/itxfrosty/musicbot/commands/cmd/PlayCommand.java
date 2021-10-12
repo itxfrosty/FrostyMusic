@@ -13,7 +13,7 @@ public class PlayCommand extends SlashCommand {
 		super("play", "Play's Song from either link or keywords.", "/play", false);
 		this.musicBot = musicBot;
 
-		getOptionData().add(new OptionData(OptionType.STRING, "input", "A search term or link.", true));
+		this.addOption(new OptionData(OptionType.STRING, "input", "A search term or link.", true));
 	}
 
 	@Override

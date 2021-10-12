@@ -18,17 +18,16 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import me.itxfrosty.musicbot.audio.TrackScheduler;
+import me.itxfrosty.musicbot.audio.handlers.AudioSoundLoadHandler;
 import me.itxfrosty.musicbot.audio.sources.SpotifySource;
 import me.itxfrosty.musicbot.commands.CommandEvent;
+import me.itxfrosty.musicbot.factories.SearchFactory;
 import me.itxfrosty.musicbot.objects.RequestType;
 import me.itxfrosty.musicbot.objects.SpotifyType;
 import me.itxfrosty.musicbot.objects.YoutubeType;
 import me.itxfrosty.musicbot.utils.MusicUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
@@ -129,7 +128,7 @@ public class GuildAudioManager {
 		this.joinVoiceChannel(member.getVoiceState().getChannel(), event.getChannel(), event.getGuild());
 
 		final TrackScheduler trackScheduler = musicManager.getTrackScheduler();
-		final String finalTrackURL = this.searchForSong(trackURL, event);
+		final String finalTrackURL = new SearchFactory(trackURL, event , trackScheduler, playerManager).search();
 
 		if (finalTrackURL == null) {
 			event.reply(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
@@ -148,91 +147,7 @@ public class GuildAudioManager {
 			return;
 		}
 
-		playerManager.loadItem(finalTrackURL, new AudioLoadResultHandler() {
-			@Override
-			public void trackLoaded(AudioTrack audioTrack) {
-				logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);
-				if (!trackScheduler.getTrackQueue().isEmpty()) {
-					EmbedBuilder embed = new EmbedBuilder()
-							.setTitle(audioTrack.getInfo().title, audioTrack.getInfo().uri)
-							.addField("Song Duration", MusicUtils.getDuration(audioTrack), true)
-							.addField("Position in Queue", String.valueOf(trackScheduler.getTrackQueue().size()), true)
-							.setFooter("Added by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
-							.setThumbnail(MusicUtils.getThumbnail(audioTrack));
-
-					if (sendMessage) {
-						event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
-						event.reply(embed.build()).queue();
-					}
-
-				} else {
-
-					if (sendMessage) {
-						event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
-					}
-
-				}
-
-				if (trackScheduler.getTrackQueue().contains(audioTrack)) {
-					logger.info("Clone Song Found: " + audioTrack.getInfo().title);
-					trackScheduler.queueSong(audioTrack.makeClone());
-					return;
-				}
-
-				trackScheduler.queueSong(audioTrack);
-			}
-
-			@Override
-			public void playlistLoaded(AudioPlaylist playlist) {
-				if (finalTrackURL.contains("ytsearch: ")) {
-					final AudioTrack audioTrack = playlist.getTracks().get(0);
-
-					logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);
-
-					if (sendMessage) {
-						if (!trackScheduler.getTrackQueue().isEmpty()) {
-							EmbedBuilder embed = new EmbedBuilder()
-									.setTitle(audioTrack.getInfo().title, audioTrack.getInfo().uri)
-									.addField("Song Duration", MusicUtils.getDuration(playlist.getTracks().get(0)), true)
-									.addField("Position in Queue", String.valueOf(trackScheduler.getTrackQueue().size()), true)
-									.setFooter("Added by " + member.getUser().getAsTag(), member.getUser().getEffectiveAvatarUrl())
-									.setThumbnail(MusicUtils.getThumbnail(playlist.getTracks().get(0)));
-
-							event.getChannel().sendMessageEmbeds(new EmbedBuilder().setDescription(":white_check_mark: **" + audioTrack.getInfo().title + "** successfully added to the queue!").build()).queue();
-							event.reply(embed.build()).queue();
-						} else {
-							event.reply(new EmbedBuilder().setDescription("Song added to queue.").build()).queue();
-						}
-					}
-
-					trackScheduler.queueSong(playlist.getTracks().get(0));
-
-
-				} else  {
-					event.reply(new EmbedBuilder().setDescription("Loading playlist `" + playlist.getName() + "`").build()).queue();
-
-					logger.info("Loading Playlist: " + playlist.getName());
-
-					for (AudioTrack audioTrack : playlist.getTracks()) {
-						logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);
-						trackScheduler.queueSong(audioTrack);
-					}
-				}
-			}
-
-			@Override
-			public void noMatches() {
-				logger.info("Could not find song!");
-				event.reply(new EmbedBuilder().setDescription("Could not find song!").build()).queue();
-			}
-
-			@Override
-			public void loadFailed(FriendlyException exception) {
-				logger.error("An error occurred loading the song!", exception);
-
-				event.reply(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
-			}
-		});
+		playerManager.loadItem(finalTrackURL, new AudioSoundLoadHandler(this.logger, member, event, sendMessage, trackScheduler, finalTrackURL));
 	}
 
 	/**
@@ -266,7 +181,7 @@ public class GuildAudioManager {
 			public void noMatches() {}
 
 			@Override
-			public void loadFailed(FriendlyException e) {}
+			public void loadFailed(FriendlyException ignore) {}
 		});
 	}
 

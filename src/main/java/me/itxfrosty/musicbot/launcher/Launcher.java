@@ -2,7 +2,7 @@ package me.itxfrosty.musicbot.launcher;
 
 import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
 import me.itxfrosty.musicbot.MusicBot;
-import me.itxfrosty.musicbot.data.Config;
+import me.itxfrosty.musicbot.data.MusicConfig;
 import net.dv8tion.jda.api.JDAInfo;
 
 import javax.security.auth.login.LoginException;
@@ -31,7 +31,7 @@ public class Launcher {
 				"\n"
 				+ "\nLoading Frosty Music..."
 				+ "\n"
-				+ "\nBot Version:      " + Config.VERSION
+				+ "\nBot Version:      " + MusicConfig.VERSION
 				+ "\nJVM:              " + System.getProperty("java.version")
 				+ "\nJDA:              " + JDAInfo.VERSION
 				+ "\nLavaplayer:       " + PlayerLibrary.VERSION

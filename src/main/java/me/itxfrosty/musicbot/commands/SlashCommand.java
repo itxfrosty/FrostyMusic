@@ -3,6 +3,7 @@ package me.itxfrosty.musicbot.commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class SlashCommand {
@@ -43,5 +44,13 @@ public abstract class SlashCommand {
 
 	public List<OptionData> getOptionData() {
 		return optionData;
+	}
+
+	public void addOption(OptionData optionData) {
+		this.getOptionData().add(optionData);
+	}
+
+	public void addOptions(OptionData... optionData) {
+		this.getOptionData().addAll(Arrays.asList(optionData));
 	}
 }

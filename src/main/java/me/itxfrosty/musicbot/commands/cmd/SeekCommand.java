@@ -16,7 +16,7 @@ public class SeekCommand extends SlashCommand {
 		super("seek", "Seek to a position in the currently playing song", "/seek <seconds>",false);
 		musicManager = musicBot.getGuildAudioManager();
 
-		getOptionData().add(new OptionData(OptionType.STRING,"time","How far ahead to skip the song.",true));
+		this.addOption(new OptionData(OptionType.STRING,"time","How far ahead to skip the song.",true));
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class SkipToCommand extends SlashCommand {
 		super("skipto", "Skips to song index in queue", "/skipto <number>", false);
 		this.musicManager = musicBot.getGuildAudioManager();
 
-		getOptionData().add(new OptionData(OptionType.STRING,"number","The position to skip the song too.",true));
+		this.addOption(new OptionData(OptionType.STRING,"number","The position to skip the song too.",true));
 	}
 
 	@Override
