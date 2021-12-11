@@ -2,13 +2,13 @@ package me.itxfrosty.frostymusic.commands.cmd;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.itxfrosty.frostymusic.FrostyMusic;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class  NPCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public NPCommand(final FrostyMusic musicBot) {
 		super("np", "Displays the currently playing song and its duration/position.","/np",false);
@@ -16,7 +16,7 @@ public class  NPCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		if (musicManager.getGuildAudio(event.getGuild()).getTrackScheduler().getTrackQueue().size() == 0) {
 			event.reply(new EmbedBuilder().setDescription("There are no songs playing.").build()).queue();
 			return;

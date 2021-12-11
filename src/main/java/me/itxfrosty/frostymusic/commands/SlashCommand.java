@@ -1,5 +1,6 @@
 package me.itxfrosty.frostymusic.commands;
 
+import lombok.Getter;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
@@ -8,12 +9,14 @@ import java.util.List;
 
 public abstract class SlashCommand {
 
-	public final String name;
-	public final String description;
-	public final String usage;
-	public final boolean moderatorOnly;
+	@Getter public final String name;
+	@Getter public final String description;
+	@Getter public final String usage;
+	@Getter public final boolean moderatorOnly;
 
-	public List<OptionData> optionData;
+	@Getter public List<OptionData> optionData;
+
+	private String[] args;
 
 	public SlashCommand(String name, String description, String usage, boolean moderatorOnly) {
 		this.name = name;
@@ -24,33 +27,13 @@ public abstract class SlashCommand {
 		this.optionData = new ArrayList<>();
 	}
 
-	public abstract void execute(CommandEvent event);
-
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public String getUsage() {
-		return usage;
-	}
-
-	public boolean isModeratorOnly() {
-		return moderatorOnly;
-	}
-
-	public List<OptionData> getOptionData() {
-		return optionData;
-	}
+	public abstract void execute(CommandEvent event, String args);
 
 	public void addOption(OptionData optionData) {
-		this.getOptionData().add(optionData);
+		this.optionData.add(optionData);
 	}
 
 	public void addOptions(OptionData... optionData) {
-		this.getOptionData().addAll(Arrays.asList(optionData));
+		this.optionData.addAll(Arrays.asList(optionData));
 	}
 }

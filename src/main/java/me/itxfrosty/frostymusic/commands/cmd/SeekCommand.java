@@ -2,7 +2,7 @@ package me.itxfrosty.frostymusic.commands.cmd;
 
 import me.itxfrosty.frostymusic.FrostyMusic;
 import me.itxfrosty.frostymusic.audio.TrackScheduler;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class SeekCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public SeekCommand(final FrostyMusic musicBot) {
 		super("seek", "Seek to a position in the currently playing song", "/seek <seconds>",false);
@@ -20,7 +20,7 @@ public class SeekCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		if (musicManager.getGuildAudio(event.getGuild()).getTrackScheduler().getTrackQueue().size() == 0) {
 			event.reply(new EmbedBuilder().setDescription("There are no songs playing.").build()).queue();
 			return;

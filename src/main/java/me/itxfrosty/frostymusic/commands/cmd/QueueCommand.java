@@ -2,7 +2,7 @@ package me.itxfrosty.frostymusic.commands.cmd;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import me.itxfrosty.frostymusic.FrostyMusic;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.List;
 
 public class QueueCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public QueueCommand(final FrostyMusic musicBot) {
 		super("queue","Display's a queue of songs.","/queue",false);
@@ -18,7 +18,7 @@ public class QueueCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		EmbedBuilder embed = new EmbedBuilder();
 
 		if (musicManager.getGuildAudio(event.getGuild()).getTrackScheduler().getTrackQueue().size() == 0) {

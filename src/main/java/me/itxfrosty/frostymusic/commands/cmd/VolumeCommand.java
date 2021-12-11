@@ -1,7 +1,7 @@
 package me.itxfrosty.frostymusic.commands.cmd;
 
 import me.itxfrosty.frostymusic.FrostyMusic;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class VolumeCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public VolumeCommand(final FrostyMusic musicBot) {
 		super("volume", "Set's the Volume of the Audio Player.", "/volume <volume>", false);
@@ -19,7 +19,7 @@ public class VolumeCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		if (musicManager.getGuildAudio(event.getGuild()).getTrackScheduler().getTrackQueue().size() == 0) {
 			event.reply(new EmbedBuilder().setDescription("There are no songs playing.").build()).queue();
 			return;
@@ -27,8 +27,8 @@ public class VolumeCommand extends SlashCommand {
 
 		String volume = event.getEvent().getCommandString().replace("/volume value: ", "");
 
-		if (Integer.parseInt(volume) >= 401 || Integer.parseInt(volume) <= 49) {
-			event.reply(new EmbedBuilder().setDescription("The volume is out of range! [50-400]").build()).queue();
+		if (Integer.parseInt(volume) >= 401 || Integer.parseInt(volume) <= -1) {
+			event.reply(new EmbedBuilder().setDescription("The volume is out of range! [0-400]").build()).queue();
 			return;
 		}
 

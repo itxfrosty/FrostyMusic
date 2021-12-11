@@ -17,9 +17,8 @@ public class PlayCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
-		String message = event.getEvent().getCommandString().replace("/play input: ", "");
-		musicBot.getGuildAudioManager().loadAndPlay(event, message,true);
+	public void execute(CommandEvent event, String args) {
+		musicBot.getGuildAudioManager().loadAndPlay(event, args, true);
 	}
 }
 

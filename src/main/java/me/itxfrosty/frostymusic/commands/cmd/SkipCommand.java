@@ -1,7 +1,7 @@
 package me.itxfrosty.frostymusic.commands.cmd;
 
 import me.itxfrosty.frostymusic.FrostyMusic;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
 public class SkipCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public SkipCommand(@NotNull FrostyMusic musicBot) {
 		super("skip","Skip's Song and play's next one in queue.","/skip", false);
@@ -17,7 +17,7 @@ public class SkipCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		if (event.getMember() == null || event.getMember().getVoiceState() == null || !event.getMember().getVoiceState().inVoiceChannel() || event.getMember().getVoiceState().getChannel() == null) {
 			event.reply(new EmbedBuilder().setDescription("Skipped to the next song!").build()).queue();
 			return;

@@ -1,7 +1,7 @@
 package me.itxfrosty.frostymusic;
 
 import lombok.Getter;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandHandler;
 import me.itxfrosty.frostymusic.data.MusicConfig;
 import me.itxfrosty.frostymusic.factories.BotFactory;
@@ -20,13 +20,13 @@ public class FrostyMusic {
 
 	@Getter private final BotFactory botFactory;
 	@Getter private final CommandHandler commandHandler;
-	@Getter private final GuildAudioManager guildAudioManager;
+	@Getter private final MusicManager guildAudioManager;
 
 	public FrostyMusic() throws LoginException, InterruptedException {
 		Thread.currentThread().setName("FrostyMusic");
 		this.logger.info("Starting FrostyMusic V{}.", MusicConfig.VERSION);
 
-		this.guildAudioManager = new GuildAudioManager();
+		this.guildAudioManager = new MusicManager();
 		this.commandHandler = new CommandHandler(this);
 
 		this.botFactory = new BotFactory()

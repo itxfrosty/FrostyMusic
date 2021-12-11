@@ -2,14 +2,14 @@ package me.itxfrosty.frostymusic.commands.cmd;
 
 import me.itxfrosty.frostymusic.FrostyMusic;
 import me.itxfrosty.frostymusic.audio.TrackScheduler;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.audio.MusicManager;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
 public class ResumeCommand extends SlashCommand {
-	private final GuildAudioManager musicManager;
+	private final MusicManager musicManager;
 
 	public ResumeCommand(final FrostyMusic musicBot) {
 		super("resume", "Resumes the player.", "/resume",false);
@@ -17,7 +17,7 @@ public class ResumeCommand extends SlashCommand {
 	}
 
 	@Override
-	public void execute(CommandEvent event) {
+	public void execute(CommandEvent event, String args) {
 		final Member member = event.getMember();
 		if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel() || member.getVoiceState().getChannel() == null) {
 			event.getEvent().getHook().sendMessageEmbeds(new EmbedBuilder().setDescription("Please connect to a voice channel first!").build()).queue();

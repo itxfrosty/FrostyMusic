@@ -1,10 +1,13 @@
 package me.itxfrosty.frostymusic.audio;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import me.itxfrosty.frostymusic.audio.guild.GuildAudioManager;
+import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.utils.MusicUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,7 +24,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final Guild guild;
 	private final AudioPlayer audioPlayer;
-	private final GuildAudioManager guildAudioManager;
+	private final MusicManager guildAudioManager;
 
 	private boolean loop = false;
 	private boolean loopQueue = false;
@@ -29,8 +32,10 @@ public class TrackScheduler extends AudioEventAdapter {
 	private TextChannel logChannel;
 
 	private final List<AudioTrack> trackQueue = new ArrayList<>();
+	private AudioTrack lastSong = null;
+	private boolean lastBoolean;
 
-	public TrackScheduler(AudioPlayer audioPlayer, GuildAudioManager guildAudioManager, Guild guild) {
+	public TrackScheduler(AudioPlayer audioPlayer, MusicManager guildAudioManager, Guild guild) {
 		this.guild = guild;
 		this.audioPlayer = audioPlayer;
 		this.guildAudioManager = guildAudioManager;
@@ -74,6 +79,15 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.skip();
 	}
 
+	public boolean removeSong(int song) {
+		if (trackQueue.get(song) == null) {
+			return false;
+		} else {
+			trackQueue.remove(song);
+			return true;
+		}
+	}
+
 	/**
 	 * Check's if Audio is paused.
 	 *
@@ -111,32 +125,36 @@ public class TrackScheduler extends AudioEventAdapter {
 	/**
 	 * Toggles loop for singular song.
 	 *
-	 * @param channel Message Channel to send message.
+	 * @param event Get's info from Command Event.
 	 */
-	public void toggleLoop(@Nullable MessageChannel channel) {
-		if (this.loopQueue && !this.loop) toggleLoopQueue(channel);
+	public void toggleLoop(final CommandEvent event) {
+		final MessageChannel channel = event.getChannel();
+
+		if (this.loopQueue && !this.loop) toggleLoopQueue(event);
 		if (!this.loop) {
 			this.loop = true;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat_one: Loop Enabled!").build()).queue();
+			if (channel != null) event.reply(new EmbedBuilder().setDescription("Loop Enabled!").build()).queue();
 		} else {
 			this.loop = false;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Disabled!").build()).queue();
+			if (channel != null) event.reply(new EmbedBuilder().setDescription("Loop Disabled!").build()).queue();
 		}
 	}
 
 	/**
 	 * Toggles Loop for queue of song.
 	 *
-	 * @param channel Message Channel to send message.
+	 * @param event Get's info from Command Event.
 	 */
-	public void toggleLoopQueue(@Nullable MessageChannel channel) {
-		if (this.loop && !this.loopQueue) toggleLoop(channel);
+	public void toggleLoopQueue(final CommandEvent event) {
+		final MessageChannel channel = event.getChannel();
+
+		if (this.loop && !this.loopQueue) toggleLoop(event);
 		if (!this.loopQueue) {
 			this.loopQueue = true;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":repeat: Loop Queue Enabled!").build()).queue();
+			if (channel != null) event.reply(new EmbedBuilder().setDescription(":repeat: Loop Queue Enabled!").build()).queue();
 		} else {
 			this.loopQueue = false;
-			if (channel != null) channel.sendMessageEmbeds(new EmbedBuilder().setDescription(":x: Loop Queue Disabled!").build()).queue();
+			if (channel != null) event.reply(new EmbedBuilder().setDescription(":x: Loop Queue Disabled!").build()).queue();
 		}
 
 	}
@@ -175,7 +193,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return this.logChannel;
 	}
 
-
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		EmbedBuilder builder = new EmbedBuilder()
@@ -189,15 +206,70 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+		if (!lastBoolean) {
+			this.lastBoolean = true;
+			this.lastSong = track;
+		}
 		this.trackQueue.remove(track);
 		if (this.loop && endReason.mayStartNext) {
-			this.guildAudioManager.addTrack(track.getInfo().uri,this. guild, false);
+			this.addTrack(track.getInfo().uri,this. guild, false);
 		} else if (this.loopQueue && endReason.mayStartNext) {
-			this.guildAudioManager.addTrack(track.getInfo().uri, this.guild, true);
+			this.addTrack(track.getInfo().uri, this.guild, true);
 		} else if (endReason.mayStartNext && this.trackQueue.size() > 0) player.playTrack(this.trackQueue.get(0));
+	}
+
+	/**
+	 * Adds track and loads it.
+	 *
+	 * @param name Name of Song.
+	 * @param guild Guild.
+	 * @param queueSong If song need's to be queued.
+	 */
+	public void addTrack(final String name, final Guild guild, final boolean queueSong) {
+		guildAudioManager.getPlayerManager().loadItem(name, new AudioLoadResultHandler() {
+			final TrackScheduler scheduler = guildAudioManager.getGuildAudio(guild).getTrackScheduler();
+
+			@Override
+			public void trackLoaded(AudioTrack audioTrack) {
+				if (queueSong) {
+					scheduler.queueSong(audioTrack);
+				}
+				scheduler.getTrackQueue().add(0, audioTrack);
+				scheduler.getAudioPlayer().playTrack(scheduler.getTrackQueue().get(0));
+			}
+
+			@Override
+			public void playlistLoaded(AudioPlaylist audioPlaylist) {
+				for (AudioTrack track : audioPlaylist.getTracks()) {
+					scheduler.queueSong(track);
+				}
+			}
+
+			@Override
+			public void noMatches() {}
+
+			@Override
+			public void loadFailed(FriendlyException ignore) {}
+		});
+	}
+
+	public boolean isLastBoolean() {
+		return lastBoolean;
+	}
+
+	public void setLastSong(AudioTrack lastSong) {
+		this.lastSong = lastSong;
+	}
+
+	public void setLastBoolean(boolean lastBoolean) {
+		this.lastBoolean = lastBoolean;
 	}
 
 	public AudioPlayer getAudioPlayer() {
 		return this.audioPlayer;
+	}
+
+	public AudioTrack getLastSong() {
+		return lastSong;
 	}
 }

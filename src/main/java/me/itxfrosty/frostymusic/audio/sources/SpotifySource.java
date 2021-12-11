@@ -8,9 +8,12 @@ import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import me.itxfrosty.frostymusic.data.MusicConfig;
+import me.itxfrosty.frostymusic.factories.SearchFactory;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class SpotifySource {
+	private final Logger logger = LoggerFactory.getLogger(SpotifySource.class);
 
 	private final String CLIENT_ID = MusicConfig.SPOTIFY_CLIENT_ID;
 	private final String CLIENT_SECRET = MusicConfig.SPOTIFY_CLIENT_SECRET;

@@ -81,7 +81,7 @@ public class SearchFactory {
 						this.logger.info("Loading Playlist: " + playlistName);
 
 						for (String song : spotifySource.getPlaylistByID(id)) {
-							audioPlayerManager.loadItem(song, new AudioSoundLoadHandler(logger, event.getMember(), event, false, trackScheduler, song));
+							audioPlayerManager.loadItem("ytsearch: " + song, new AudioSoundLoadHandler(logger, event.getMember(), event, false, trackScheduler,"ytsearch: " + song));
 						}
 
 						return "Spotify.PLAYLIST " + playlistName;
@@ -108,7 +108,7 @@ public class SearchFactory {
 						this.logger.info("Loading Album: " + albumName);
 
 						for (String song : spotifySource.getAlbum(id)) {
-							audioPlayerManager.loadItem(song, new AudioSoundLoadHandler(logger, event.getMember(), event, false, trackScheduler, song));
+							audioPlayerManager.loadItem("ytsearch: " + song, new AudioSoundLoadHandler(logger, event.getMember(), event, false, trackScheduler,"ytsearch: " + song));
 						}
 
 						return "Spotify.ALBUM " + albumName;

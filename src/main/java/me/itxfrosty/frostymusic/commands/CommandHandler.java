@@ -37,7 +37,11 @@ public class CommandHandler extends ListenerAdapter {
 				new SeekCommand(musicBot),
 				new SkipToCommand(musicBot),
 				new ClearCommand(musicBot),
-				new BassBoostCommand(musicBot));
+				new BassBoostCommand(musicBot),
+				new LoopCommand(musicBot),
+				new RemoveCommand(musicBot),
+				new MoveCommand(musicBot),
+				new BackCommand(musicBot));
 		this.logger.info("Registered Commands!");
 	}
 
@@ -101,7 +105,12 @@ public class CommandHandler extends ListenerAdapter {
 				}
 
 				event.deferReply().queue();
-				command.execute(new CommandEventHandler(event));
+
+				if (command.getOptionData().isEmpty()) {
+					command.execute(new CommandEventHandler(event), null);
+				} else {
+					command.execute(new CommandEventHandler(event), event.getCommandString().replace("/" + command.name + " " + command.optionData.get(0).getName() + ": ", ""));
+				}
 
 				break;
 			}
