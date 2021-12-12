@@ -12,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import me.itxfrosty.frostymusic.FrostyMusic;
 import me.itxfrosty.frostymusic.audio.guild.GuildMusicManager;
 import me.itxfrosty.frostymusic.audio.handlers.AudioSoundLoadHandler;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
@@ -31,7 +32,11 @@ public class MusicManager {
 	private final AudioPlayerManager playerManager;
 	private final Map<Long, GuildMusicManager> guildMusicManager;
 
-	public MusicManager() {
+	private final FrostyMusic frostyMusic;
+
+	public MusicManager(final FrostyMusic frostyMusic) {
+		this.frostyMusic = frostyMusic;
+
 		this.logger.info("Loading AudioManager...");
 		this.guildMusicManager = new HashMap<>();
 		this.playerManager = new DefaultAudioPlayerManager();
@@ -133,7 +138,7 @@ public class MusicManager {
 		musicManager.getTrackScheduler().setLogChannel(event.getChannel());
 
 		final TrackScheduler trackScheduler = musicManager.getTrackScheduler();
-		final String finalTrackURL = new SearchFactory(trackURL, event , trackScheduler, playerManager).search();
+		final String finalTrackURL = new SearchFactory(trackURL, event , trackScheduler, playerManager, frostyMusic).search();
 
 		if (finalTrackURL == null) {
 			event.reply(new EmbedBuilder().setDescription("An error occurred!").build()).queue();
@@ -149,6 +154,19 @@ public class MusicManager {
 		/* Spotify Album */
 		if (finalTrackURL.startsWith("Spotify.ALBUM ")) {
 			event.reply(new EmbedBuilder().setDescription("Loading album `" + finalTrackURL.replace("Spotify.ALBUM ","") + "`").build()).queue();
+			return;
+		}
+
+		/* Apple Music Album */
+		if (finalTrackURL.startsWith("AppleMusic.ALBUM ")) {
+
+			event.reply(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("AppleMusic.ALBUM ","") + "`").build()).queue();
+			return;
+		}
+
+		/* Apple Music Playlist */
+		if (finalTrackURL.startsWith("AppleMusic.PLAYLIST ")) {
+			event.reply(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("AppleMusic.ALBUM ","") + "`").build()).queue();
 			return;
 		}
 

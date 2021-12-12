@@ -2,19 +2,31 @@ package me.itxfrosty.frostymusic.factories;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import me.itxfrosty.frostymusic.FrostyMusic;
 import me.itxfrosty.frostymusic.audio.TrackScheduler;
 import me.itxfrosty.frostymusic.audio.handlers.AudioSoundLoadHandler;
 import me.itxfrosty.frostymusic.audio.sources.SpotifySource;
+import me.itxfrosty.frostymusic.audio.sources.applemusic.AppleMusicAPI;
+import me.itxfrosty.frostymusic.audio.sources.applemusic.entites.Track;
+import me.itxfrosty.frostymusic.audio.sources.applemusic.entites.album.Album;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
+import me.itxfrosty.frostymusic.objects.AppleMusicType;
 import me.itxfrosty.frostymusic.objects.RequestType;
 import me.itxfrosty.frostymusic.objects.SpotifyType;
 import me.itxfrosty.frostymusic.objects.YoutubeType;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.hc.core5.http.ParseException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SearchFactory {
 	private final Logger logger = LoggerFactory.getLogger(SearchFactory.class);
@@ -24,16 +36,20 @@ public class SearchFactory {
 	private final TrackScheduler trackScheduler;
 	private final AudioPlayerManager audioPlayerManager;
 
+	private final FrostyMusic frostyMusic;
+
 	/**
 	 * SearchFactory Constructor.
 	 *
 	 * @param search Song/URL to search for.
 	 */
-	public SearchFactory(String search, CommandEvent event, TrackScheduler trackScheduler, AudioPlayerManager audioPlayerManager) {
+	public SearchFactory(String search, CommandEvent event, TrackScheduler trackScheduler, AudioPlayerManager audioPlayerManager, FrostyMusic frostyMusic) {
 		this.search = search;
 		this.event = event;
 		this.trackScheduler = trackScheduler;
 		this.audioPlayerManager = audioPlayerManager;
+
+		this.frostyMusic = frostyMusic;
 	}
 
 	public String search() {
@@ -112,6 +128,43 @@ public class SearchFactory {
 						}
 
 						return "Spotify.ALBUM " + albumName;
+					}
+				}
+
+				case APPLE_MUSIC: {
+					final AppleMusicType appleMusicType = AppleMusicType.getAppleMusicType(search);
+					final AppleMusicAPI api = this.frostyMusic.getAppleMusicAPI();
+
+					if (appleMusicType == AppleMusicType.ALBUM)  {
+
+						StringBuilder stringBuilder = new StringBuilder();
+						stringBuilder.append(search);
+						stringBuilder.substring(stringBuilder.lastIndexOf("/"), stringBuilder.lastIndexOf(".")).replaceAll("/", "");
+
+						final String[] albumName = new String[1];
+						albumName[0] = null;
+
+						api.getAlbum("", stringBuilder.toString(), new Callback<>() {
+							@Override
+							public void onResponse(@NotNull Call<Album> call, @NotNull Response<Album> response) {
+								assert response.body() != null;
+								albumName[0] = response.body().getAlbum().getAttributes().getName();
+								logger.info("Loading Album: " +  albumName[0]);
+
+								for (Track track : response.body().getAlbum().getRelationships().getTracks().getData()) {
+									final String song = track.getAttributes().getName() + " " + track.getAttributes().getArtistName();
+									audioPlayerManager.loadItem("ytsearch: " + song, new AudioSoundLoadHandler(logger, event.getMember(), event, false, trackScheduler,"ytsearch: " + song));
+								}
+							}
+
+							@Override
+							public void onFailure(@NotNull Call<Album> call, @NotNull Throwable throwable) {
+								event.reply(new EmbedBuilder().setDescription("Could not find album!").build()).queue();
+								call.cancel();
+							}
+						});
+
+						return "AppleMusic.ALBUM" + albumName[0];
 					}
 				}
 

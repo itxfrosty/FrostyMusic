@@ -6,6 +6,7 @@ public enum RequestType {
 
 	YOUTUBE,
 	SPOTIFY,
+	APPLE_MUSIC,
 	SEARCH
 	;
 
@@ -21,6 +22,8 @@ public enum RequestType {
 				return RequestType.YOUTUBE;
 			} else if (type.contains("spotify")) {
 				return RequestType.SPOTIFY;
+			} else if (type.contains("music.apple")) {
+				return RequestType.APPLE_MUSIC;
 			}
 		} else {
 			return RequestType.SEARCH;

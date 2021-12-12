@@ -25,6 +25,8 @@ public class MusicConfig {
 	public static final String SPOTIFY_CLIENT_ID = PROPERTIES.getProperty("spotify_client_ID");
 	public static final String SPOTIFY_CLIENT_SECRET = PROPERTIES.getProperty("spotify_client_SECRET");
 
+	public static final String APPLE_TOKEN = PROPERTIES.getProperty("apple_token");
+
 
 	/**
 	 * Load's the Properties File.

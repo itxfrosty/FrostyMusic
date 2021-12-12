@@ -2,6 +2,7 @@ package me.itxfrosty.frostymusic;
 
 import lombok.Getter;
 import me.itxfrosty.frostymusic.audio.MusicManager;
+import me.itxfrosty.frostymusic.audio.sources.applemusic.AppleMusicAPI;
 import me.itxfrosty.frostymusic.commands.CommandHandler;
 import me.itxfrosty.frostymusic.data.MusicConfig;
 import me.itxfrosty.frostymusic.factories.BotFactory;
@@ -22,12 +23,16 @@ public class FrostyMusic {
 	@Getter private final CommandHandler commandHandler;
 	@Getter private final MusicManager guildAudioManager;
 
+	@Getter private final AppleMusicAPI appleMusicAPI;
+
 	public FrostyMusic() throws LoginException, InterruptedException {
 		Thread.currentThread().setName("FrostyMusic");
 		this.logger.info("Starting FrostyMusic V{}.", MusicConfig.VERSION);
 
-		this.guildAudioManager = new MusicManager();
+		this.guildAudioManager = new MusicManager(this);
 		this.commandHandler = new CommandHandler(this);
+
+		this.appleMusicAPI = new AppleMusicAPI(MusicConfig.APPLE_TOKEN);
 
 		this.botFactory = new BotFactory()
 				.setToken(MusicConfig.TOKEN)

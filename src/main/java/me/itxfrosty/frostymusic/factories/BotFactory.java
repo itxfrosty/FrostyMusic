@@ -263,7 +263,6 @@ public class BotFactory {
 			this.defaultShardManager.setAudioSendFactory(new NativeAudioSendFactory());
 		}
 
-
 		this.shardManager = this.defaultShardManager.build();
 		this.built = true;
 	}

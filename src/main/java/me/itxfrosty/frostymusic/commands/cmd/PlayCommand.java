@@ -1,6 +1,7 @@
 package me.itxfrosty.frostymusic.commands.cmd;
 
 import me.itxfrosty.frostymusic.FrostyMusic;
+import me.itxfrosty.frostymusic.audio.sources.applemusic.AppleMusicAdapter;
 import me.itxfrosty.frostymusic.commands.CommandEvent;
 import me.itxfrosty.frostymusic.commands.SlashCommand;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
