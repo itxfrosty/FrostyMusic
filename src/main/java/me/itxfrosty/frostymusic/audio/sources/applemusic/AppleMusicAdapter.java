@@ -9,7 +9,7 @@ public class AppleMusicAdapter {
 	private static AppleMusicService appleMusicService;
 
 	/**
-	 * Get's AppleMusic Service Via HTTP.
+	 * Gets AppleMusic Service Via HTTP.
 	 *
 	 * @return AppleMusicService.
 	 */

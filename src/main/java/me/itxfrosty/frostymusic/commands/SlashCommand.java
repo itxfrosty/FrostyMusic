@@ -16,8 +16,6 @@ public abstract class SlashCommand {
 
 	@Getter public List<OptionData> optionData;
 
-	private String[] args;
-
 	public SlashCommand(String name, String description, String usage, boolean moderatorOnly) {
 		this.name = name;
 		this.description = description;

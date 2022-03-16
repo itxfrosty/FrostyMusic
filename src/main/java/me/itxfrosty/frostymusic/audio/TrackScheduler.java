@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,6 +119,10 @@ public class TrackScheduler extends AudioEventAdapter {
 	 */
 	public void shuffle() {
 		Collections.shuffle(this.trackQueue.subList(1, this.trackQueue.size()));
+	}
+
+	public void restartSong() {
+		audioPlayer.getPlayingTrack().setPosition(0);
 	}
 
 	/**

@@ -11,27 +11,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.slf4j.Logger;
 
-public class AudioSoundLoadHandler implements AudioLoadResultHandler {
-
-	private final Logger logger;
-	private final Member member;
-	private final CommandEvent event;
-	private final boolean sendMessage;
-	private final TrackScheduler trackScheduler;
-	private final String finalTrackURL;
-
-	public AudioSoundLoadHandler(Logger logger, Member member, CommandEvent event, boolean sendMessage, TrackScheduler trackScheduler, String finalTrackURL) {
-		this.logger = logger;
-		this.member = member;
-		this.event = event;
-		this.sendMessage = sendMessage;
-		this.trackScheduler = trackScheduler;
-		this.finalTrackURL = finalTrackURL;
-	}
+public record AudioSoundLoadHandler(Logger logger, Member member,
+									CommandEvent event, boolean sendMessage,
+									TrackScheduler trackScheduler,
+									String finalTrackURL) implements AudioLoadResultHandler {
 
 	@Override
 	public void trackLoaded(AudioTrack audioTrack) {
-		logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);
+		logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author + " | [User Info] Played By: " + member.getUser().getAsTag() + " ID: " + member.getUser().getId() + " | [Guild Info] Name: " + member.getGuild().getName() + " ID: " + member.getGuild().getId());
 		if (!trackScheduler.getTrackQueue().isEmpty()) {
 			EmbedBuilder embed = new EmbedBuilder()
 					.setTitle(audioTrack.getInfo().title, audioTrack.getInfo().uri)
@@ -67,7 +54,7 @@ public class AudioSoundLoadHandler implements AudioLoadResultHandler {
 		if (finalTrackURL.contains("ytsearch: ")) {
 			final AudioTrack audioTrack = playlist.getTracks().get(0);
 
-			logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);
+			logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author + " | [User Info] Played By: " + member.getUser().getAsTag() + " ID: " + member.getUser().getId() + " | [Guild Info] Name: " + member.getGuild().getName() + " ID: " + member.getGuild().getId());
 
 			if (sendMessage) {
 				if (!trackScheduler.getTrackQueue().isEmpty()) {
@@ -88,10 +75,10 @@ public class AudioSoundLoadHandler implements AudioLoadResultHandler {
 			trackScheduler.queueSong(playlist.getTracks().get(0));
 
 
-		} else  {
+		} else {
 			event.reply(new EmbedBuilder().setDescription("Loading playlist `" + playlist.getName() + "`").build()).queue();
 
-			logger.info("Loading Playlist: " + playlist.getName());
+			logger.info("Loading Playlist: " + playlist.getName() + " | [User Info] Played By: " + member.getUser().getAsTag() + " ID: " + member.getUser().getId() + " | [Guild Info] Name: " + member.getGuild().getName() + " ID: " + member.getGuild().getId());
 
 			for (AudioTrack audioTrack : playlist.getTracks()) {
 				logger.info("Loaded Song: " + audioTrack.getInfo().title + " By: " + audioTrack.getInfo().author);

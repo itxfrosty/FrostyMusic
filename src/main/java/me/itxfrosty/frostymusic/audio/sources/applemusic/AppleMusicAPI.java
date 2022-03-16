@@ -32,9 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class AppleMusicAPI {
-
-	private final String token;
+public record AppleMusicAPI(String token) {
 
 	public AppleMusicAPI(@NotNull String token) {
 		this.token = token;
@@ -50,7 +48,7 @@ public class AppleMusicAPI {
 		call.enqueue(callback);
 	}
 
-	public void getMultipleActivity(String storefront, List<String> ids, Callback<Activities> callback) {
+	public void getMultipleActivity(String 	storefront, List<String> ids, Callback<Activities> callback) {
 		String formatIds = "";
 		for (String id : ids) {
 			formatIds = formatIds + id + ",";
@@ -166,8 +164,8 @@ public class AppleMusicAPI {
 		for (String type : types) {
 			formatTypes = formatTypes + type + ",";
 		}
-		formatTypes = formatTypes.substring(0, formatTypes.length()-1);
-		Call<Charts> call =AppleMusicAdapter.getAPI().getCharts(token, storefront, formatTypes,
+		formatTypes = formatTypes.substring(0, formatTypes.length() - 1);
+		Call<Charts> call = AppleMusicAdapter.getAPI().getCharts(token, storefront, formatTypes,
 				language, genre, chart, limit, offset);
 		call.enqueue(callback);
 	}
@@ -385,7 +383,7 @@ public class AppleMusicAPI {
 			formatIds = formatIds + id + ",";
 		}
 		formatIds = formatIds.substring(0, formatIds.lastIndexOf(","));
-		Call<Stations> call =AppleMusicAdapter.getAPI().getMultipleStation(token, storefront, formatIds, language);
+		Call<Stations> call = AppleMusicAdapter.getAPI().getMultipleStation(token, storefront, formatIds, language);
 		call.enqueue(callback);
 	}
 

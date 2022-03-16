@@ -40,6 +40,7 @@ public class CommandHandler extends ListenerAdapter {
 				new BassBoostCommand(musicBot),
 				new LoopCommand(musicBot),
 				new RemoveCommand(musicBot),
+				new RestartCommand(musicBot),
 				new MoveCommand(musicBot),
 				new BackCommand(musicBot));
 		this.logger.info("Registered Commands!");

@@ -32,7 +32,7 @@ public class FrostyMusic {
 		this.guildAudioManager = new MusicManager(this);
 		this.commandHandler = new CommandHandler(this);
 
-		this.appleMusicAPI = new AppleMusicAPI(MusicConfig.APPLE_TOKEN);
+		this.appleMusicAPI = new AppleMusicAPI("MusicConfig.APPLE_TOKEN");
 
 		this.botFactory = new BotFactory()
 				.setToken(MusicConfig.TOKEN)
@@ -42,5 +42,12 @@ public class FrostyMusic {
 				.registerListeners(this.commandHandler, new ReadyListener(this), new DeafenListener(this));
 		this.botFactory.build();
 		this.logger.info("Connected to Discord!");
+
+		try	{
+			Thread.sleep(1000);
+		} catch (Exception e) {
+			e.printStackTrace();;
+		}
+
 	}
 }

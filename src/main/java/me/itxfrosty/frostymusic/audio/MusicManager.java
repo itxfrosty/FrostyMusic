@@ -159,7 +159,6 @@ public class MusicManager {
 
 		/* Apple Music Album */
 		if (finalTrackURL.startsWith("AppleMusic.ALBUM ")) {
-
 			event.reply(new EmbedBuilder().setDescription("Loading playlist `" + finalTrackURL.replace("AppleMusic.ALBUM ","") + "`").build()).queue();
 			return;
 		}

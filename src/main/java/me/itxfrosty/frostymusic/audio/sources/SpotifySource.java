@@ -123,7 +123,7 @@ public class SpotifySource {
 	}
 
 	/**
-	 * Get's album as a list of songs.
+	 * Gets album as a list of songs.
 	 *
 	 * @param id ID of album.
 	 * @return List of album song's in song name + artist name.
